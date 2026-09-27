@@ -41,8 +41,8 @@
         .editable-name { color: #2980b9; cursor: pointer; font-weight: bold; text-decoration: underline dotted; text-align: left; }
         .editable-name:hover { color: #e67e22; }
 
-        /* Huy hiệu chuỗi ngày liên tục tự động */
-        .streak-badge { background-color: #e67e22; color: white; padding: 2px 8px; border-radius: 10px; font-size: 0.8em; font-weight: bold; display: inline-flex; align-items: center; gap: 3px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
+        /* Huy hiệu số ngày liên tục (chỉ hiện con số dạng tròn/bo góc ngay cạnh tên) */
+        .streak-badge { background-color: #e67e22; color: white; padding: 2px 8px; border-radius: 12px; font-size: 0.8em; font-weight: bold; display: inline-flex; align-items: center; justify-content: center; box-shadow: 0 2px 4px rgba(0,0,0,0.1); margin-left: 6px; }
 
         /* Màu sắc cho Top 3 (Vàng, Bạc, Đồng) */
         .rank-1 { background-color: #fff9c4 !important; } 
@@ -68,7 +68,7 @@
 
 <div id="welcomeScreen" class="welcome-screen">
     <h1>🏸 Welcome to Pick Thủ Thanh Trì 🏸</h1>
-    <p>Ứng dụng giúp bạn ghi lại tỷ số, tự động xếp hạng và tính chuỗi ngày liên tục giữ ngôi!</p>
+    <p>Ứng dụng giúp bạn ghi lại tỷ số, tự động xếp hạng và hiển thị chuỗi ngày liên tục cho Top 1, 2, 3!</p>
     <button class="btn-enter" onclick="enterApp()">Enter</button>
 </div>
 
@@ -104,7 +104,7 @@
     </div>
 
     <h2>Bảng Xếp Hạng Cá Nhân</h2>
-    <div class="note">(💡 Top 3 tô màu huy chương. Hệ thống tự động tính chuỗi số ngày liên tục giữ vị trí qua các buổi đấu!)</div>
+    <div class="note">(💡 Top 3 tô màu huy chương kèm theo số ngày liên tục giữ vị trí trên bảng xếp hạng!)</div>
     <div style="overflow-x: auto;">
         <table>
             <thead>
@@ -153,7 +153,7 @@
     let playerAvatars = {}; 
     let matches = [];
     let players = {};
-    let playerStreaks = {}; // Lưu chuỗi ngày liên tục tự động tính toán
+    let playerStreaks = { 1: {}, 2: {}, 3: {} }; // Lưu chuỗi ngày liên tục cho Top 1, 2, 3
 
     function enterApp() {
         document.getElementById('welcomeScreen').style.display = 'none';
@@ -193,17 +193,15 @@
         });
     }
 
-    // Thuật toán tự động tính toán số liệu và chuỗi ngày liên tục (Streak) dựa trên lịch sử
+    // Thuật toán tự động tính toán chuỗi ngày liên tục cho cả Top 1, Top 2, và Top 3
     function calculateAllStatsAndStreaks() {
         players = {};
         playerNames.forEach(name => { 
             players[name] = { name: name, matches: 0, wins: 0, losses: 0, pointsDiff: 0 }; 
         });
 
-        // Sắp xếp các trận đấu theo thứ tự thời gian tăng dần (từ cũ đến mới)
         let sortedMatches = [...matches].sort((a, b) => new Date(a.date) - new Date(b.date));
 
-        // Nhóm các trận đấu theo từng ngày
         let matchesByDate = {};
         sortedMatches.forEach(m => {
             if (!matchesByDate[m.date]) {
@@ -214,17 +212,14 @@
 
         let sortedDates = Object.keys(matchesByDate).sort((a, b) => new Date(a) - new Date(b));
 
-        // Theo dõi lịch sử bảng xếp hạng qua các ngày để tính chuỗi liên tục
-        let currentRanks = {}; // { playerName: rank }
-        let currentStreakHolders = {}; // { playerName: { rank: number, days: number } }
-        playerStreaks = {};
+        let currentStreakHolders = { 1: {}, 2: {}, 3: {} }; // { rank: { playerName: days } }
+        playerStreaks = { 1: {}, 2: {}, 3: {} };
 
         let lastDateObj = null;
 
         sortedDates.forEach(dateStr => {
             let dayMatches = matchesByDate[dateStr];
             
-            // Cập nhật điểm tích lũy tính đến hết ngày hôm đó
             dayMatches.forEach(m => {
                 [m.t1p1, m.t1p2].forEach(p => {
                     if (players[p]) {
@@ -244,7 +239,6 @@
                 });
             });
 
-            // Xác định bảng xếp hạng tính đến hết ngày hôm nay
             let dayPlayersArray = Object.values(players).filter(p => p.matches > 0).sort((a, b) => {
                 if (b.wins !== a.wins) return b.wins - a.wins;
                 return b.pointsDiff - a.pointsDiff;
@@ -252,12 +246,10 @@
 
             let newRanks = {};
             dayPlayersArray.forEach((p, idx) => {
-                newRanks[p.name] = idx + 1; // Hạng 1, 2, 3...
+                newRanks[p.name] = idx + 1; 
             });
 
             let currentDateObj = new Date(dateStr);
-
-            // Tính số ngày trôi qua kể từ ngày có buổi đánh trước đó (để tính gộp cả những ngày nghỉ giữa 2 buổi đánh)
             let gapDays = 1;
             if (lastDateObj) {
                 let diffTime = currentDateObj - lastDateObj;
@@ -265,37 +257,37 @@
                 if (gapDays < 1) gapDays = 1;
             }
 
-            // Cập nhật chuỗi ngày liên tục cho từng người chơi
-            Object.keys(newRanks).forEach(pName => {
-                let rank = newRanks[pName];
-                // Chỉ xét top 1 (hoặc bạn có thể mở rộng ra các hạng khác nếu muốn)
-                if (rank === 1) {
-                    if (currentStreakHolders[pName] && currentStreakHolders[pName].rank === 1) {
-                        // Vẫn giữ vững vị trí top 1 so với lần đánh trước -> cộng dồn số ngày (bao gồm cả ngày nghỉ ở giữa)
-                        currentStreakHolders[pName].days += gapDays;
-                    } else {
-                        // Mới vừa vươn lên top 1 hoặc đổi hạng -> bắt đầu chuỗi mới tính là gapDays (hoặc 1 ngày nếu là ngày đầu)
-                        currentStreakHolders[pName] = { rank: 1, days: lastDateObj ? gapDays : 1 };
-                    }
-                } else {
-                    // Nếu rớt hạng khỏi top 1, xóa hoặc reset chuỗi top 1 của họ
-                    if (currentStreakHolders[pName]) {
-                        delete currentStreakHolders[pName];
-                    }
-                }
+            // Xử lý chuỗi liên tục cho Top 1, 2, 3
+            [1, 2, 3].forEach(targetRank => {
+                let currentHoldersInRank = Object.keys(newRanks).filter(pName => newRanks[pName] === targetRank);
+                
+                // Kiểm tra xem ai đang giữ hạng này từ kỳ trước và vẫn giữ nguyên hạng đó
+                let existingHolders = currentStreakHolders[targetRank];
+                let nextHolders = {};
+
+                currentHoldersInRank.forEach(pName => {
+                    let prevDays = (existingHolders && existingHolders[pName] !== undefined) ? existingHolders[pName] : (lastDateObj ? 0 : 1);
+                    nextHolders[pName] = prevDays + gapDays;
+                });
+
+                currentStreakHolders[targetRank] = nextHolders;
             });
 
-            // Lưu lại kết quả chuỗi của ngày hôm nay
-            Object.keys(currentStreakHolders).forEach(pName => {
-                if (newRanks[pName] === 1) {
-                    playerStreaks[pName] = currentStreakHolders[pName].days;
+            // Gán kết quả vào playerStreaks
+            [1, 2, 3].forEach(targetRank => {
+                if (currentStreakHolders[targetRank]) {
+                    Object.keys(currentStreakHolders[targetRank]).forEach(pName => {
+                        if (newRanks[pName] === targetRank) {
+                            playerStreaks[targetRank][pName] = currentStreakHolders[targetRank][pName];
+                        }
+                    });
                 }
             });
 
             lastDateObj = currentDateObj;
         });
 
-        // Cập nhật lại số liệu tổng toàn bộ trận đấu hiện tại để hiển thị bảng xếp hạng chính thức
+        // Đặt lại số liệu thống kê chính xác cuối cùng để hiển thị bảng xếp hạng chuẩn
         players = {};
         playerNames.forEach(name => { players[name] = { name: name, matches: 0, wins: 0, losses: 0, pointsDiff: 0 }; });
         matches.forEach(m => {
@@ -416,7 +408,7 @@
         
         if (!document.getElementById('matchDate').value) document.getElementById('matchDate').valueAsDate = new Date();
 
-        // 1. CẬP NHẬT BẢNG XẾP HẠNG & HIỂN THỊ CHUỖI NGÀY LIÊN TỤC TỰ ĐỘNG
+        // 1. CẬP NHẬT BẢNG XẾP HẠNG & HIỂN THỊ HUY HIỆU SỐ NGÀY LIÊN TỤC CHO TOP 1, 2, 3
         let playersArray = Object.values(players).sort((a, b) => b.wins !== a.wins ? b.wins - a.wins : b.pointsDiff - a.pointsDiff);
         const tbody = document.getElementById('leaderboard'); 
         tbody.innerHTML = ""; 
@@ -441,10 +433,14 @@
                 ? `<img src="${playerAvatars[p.name]}" class="player-avatar" onclick="changeAvatar('${p.name}')" title="Bấm để đổi link ảnh">`
                 : `<div class="player-avatar" onclick="changeAvatar('${p.name}')" title="Bấm để thêm link ảnh">📷</div>`;
 
-            // Hiển thị huy hiệu chuỗi ngày liên tục nếu đang đứng Top 1
-            let streakDays = playerStreaks[p.name] || 0;
-            let streakHtml = (rank === 1 && streakDays > 0)
-                ? `<span class="streak-badge" title="Chuỗi ngày liên tục giữ ngôi Hạng 1">🔥 Giữ đỉnh: ${streakDays} ngày</span>` 
+            // Lấy số ngày liên tục nếu ở Top 1, 2, hoặc 3 (bỏ chữ, chỉ hiện con số)
+            let streakDays = 0;
+            if (rank === 1 && playerStreaks[1][p.name]) streakDays = playerStreaks[1][p.name];
+            else if (rank === 2 && playerStreaks[2][p.name]) streakDays = playerStreaks[2][p.name];
+            else if (rank === 3 && playerStreaks[3][p.name]) streakDays = playerStreaks[3][p.name];
+
+            let streakHtml = streakDays > 0 
+                ? `<span class="streak-badge" title="Số ngày liên tục giữ hạng ${rank}">${streakDays}</span>` 
                 : "";
 
             tbody.innerHTML += `<tr class="${rowClass}">
@@ -452,8 +448,8 @@
                 <td>
                     <div class="player-cell">
                         ${avatarImgHtml}
-                        <div>
-                            <span class="editable-name" onclick="editPlayerName('${p.name}')">${p.name} ✏️</span><br>
+                        <div style="display: flex; align-items: center; flex-wrap: wrap;">
+                            <span class="editable-name" onclick="editPlayerName('${p.name}')">${p.name} ✏️</span>
                             ${streakHtml}
                         </div>
                     </div>
