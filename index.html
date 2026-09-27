@@ -49,12 +49,15 @@
         .btn-sm { width: auto; padding: 5px 10px; font-size: 12px; margin-top: 5px; margin-right: 5px; display: inline-block; }
         .btn-edit { background-color: #f39c12; }
         .btn-delete-match { background-color: #c0392b; }
+        .btn-restore { background-color: #27ae60; }
+        .btn-trash-toggle { background-color: #7f8c8d; font-size: 14px; padding: 8px 12px; width: auto; margin: 10px 0; }
         
         table { width: 100%; border-collapse: collapse; margin-top: 10px; background: #fff; }
         th, td { border: 1px solid #ddd; padding: 10px; text-align: center; vertical-align: middle; }
         th { background-color: #34495e; color: white; }
         .match-history { list-style-type: none; padding: 0; }
         .match-item { background: #ecf0f1; margin-bottom: 8px; padding: 12px; border-radius: 4px; border-left: 5px solid #3498db; line-height: 1.5; }
+        .trash-item { background: #fdf2f2; margin-bottom: 8px; padding: 12px; border-radius: 4px; border-left: 5px solid #e74c3c; line-height: 1.5; }
         .match-actions { margin-top: 8px; }
         
         /* CSS cho Avatar và Tên người chơi */
@@ -152,6 +155,14 @@
 
     <h2 style="margin-top: 30px;">Lịch Sử Trận Đấu</h2>
     <div id="historyList"></div>
+
+    <!-- Khu vực Thùng rác -->
+    <div style="margin-top: 30px; border-top: 2px dashed #bdc3c7; padding-top: 15px;">
+        <button class="btn-trash-toggle" onclick="toggleTrash()">🗑️ Thùng rác trận đấu (<span id="trashCount">0</span>)</button>
+        <div id="trashContainer" style="display: none; margin-top: 10px;">
+            <div id="trashList"></div>
+        </div>
+    </div>
 </div>
 
 <script>
@@ -174,6 +185,7 @@
     let playerNames = ["Người chơi 1", "Người chơi 2", "Người chơi 3"];
     let playerAvatars = {}; 
     let matches = [];
+    let trashMatches = []; // Mảng chứa các trận trong thùng rác
     let players = {};
     let playerStreaks = { 1: {}, 2: {}, 3: {} };
 
@@ -196,6 +208,11 @@
             } else {
                 matches = [];
             }
+            if (data.trashMatches) {
+                trashMatches = data.trashMatches;
+            } else {
+                trashMatches = [];
+            }
         } else {
             saveData();
         }
@@ -209,24 +226,24 @@
         dbRef.set({
             players: playerNames,
             playerAvatars: playerAvatars,
-            matches: matches
+            matches: matches,
+            trashMatches: trashMatches
         }).catch((error) => {
             alert("Lỗi lưu dữ liệu: " + error.message);
         });
     }
 
-    // Hàm sắp xếp chung theo tiêu chí mới: Số trận thắng (giảm dần) -> Số trận thua (tăng dần, ít thua hơn xếp trên) -> Hệ số điểm (giảm dần) -> Tổng trận (tăng dần)
     function sortPlayersCriteria(a, b) {
         if (b.wins !== a.wins) {
-            return b.wins - a.wins; // Thắng nhiều hơn xếp trên
+            return b.wins - a.wins; 
         }
         if (a.losses !== b.losses) {
-            return a.losses - b.losses; // Ít thua hơn xếp trên
+            return a.losses - b.losses; 
         }
         if (b.pointsDiff !== a.pointsDiff) {
-            return b.pointsDiff - a.pointsDiff; // Hệ số điểm cao hơn xếp trên
+            return b.pointsDiff - a.pointsDiff; 
         }
-        return a.matches - b.matches; // Đánh ít trận hơn mà hiệu quả tương đương thì xếp trên
+        return a.matches - b.matches; 
     }
 
     function calculateAllStatsAndStreaks() {
@@ -365,6 +382,12 @@
                 if (m.t2p1 === oldName) m.t2p1 = trimmedName; 
                 if (m.t2p2 === oldName) m.t2p2 = trimmedName;
             });
+            trashMatches.forEach(m => {
+                if (m.t1p1 === oldName) m.t1p1 = trimmedName; 
+                if (m.t1p2 === oldName) m.t1p2 = trimmedName;
+                if (m.t2p1 === oldName) m.t2p1 = trimmedName; 
+                if (m.t2p2 === oldName) m.t2p2 = trimmedName;
+            });
             saveData(); 
         }
     }
@@ -408,9 +431,31 @@
         }
     }
 
+    // Xóa trận đấu -> Chuyển vào thùng rác
     function deleteMatch(matchId) {
-        if (confirm("Xóa trận đấu này khỏi lịch sử?")) {
-            matches = matches.filter(m => m.id !== matchId); saveData(); 
+        let matchIndex = matches.findIndex(m => m.id === matchId);
+        if (matchIndex !== -1) {
+            let removedMatch = matches.splice(matchIndex, 1)[0];
+            trashMatches.push(removedMatch);
+            saveData();
+        }
+    }
+
+    // Khôi phục trận đấu từ thùng rác về lại lịch sử
+    function restoreMatch(matchId) {
+        let trashIndex = trashMatches.findIndex(m => m.id === matchId);
+        if (trashIndex !== -1) {
+            let restoredMatch = trashMatches.splice(trashIndex, 1)[0];
+            matches.push(restoredMatch);
+            saveData();
+        }
+    }
+
+    // Xóa vĩnh viễn khỏi thùng rác
+    function permanentDeleteMatch(matchId) {
+        if (confirm("Xóa vĩnh viễn trận đấu này? Không thể khôi phục lại được nữa!")) {
+            trashMatches = trashMatches.filter(m => m.id !== matchId);
+            saveData();
         }
     }
 
@@ -421,6 +466,11 @@
         } else {
             el.style.display = "none";
         }
+    }
+
+    function toggleTrash() {
+        let container = document.getElementById('trashContainer');
+        container.style.display = container.style.display === "none" ? "block" : "none";
     }
 
     function updateUI() {
@@ -486,6 +536,7 @@
             </tr>`;
         });
 
+        // Hiển thị lịch sử trận đấu
         const historyList = document.getElementById('historyList'); 
         historyList.innerHTML = ""; 
 
@@ -508,7 +559,7 @@
                     <div><span style="color:#2980b9;font-weight:bold;">${m.t1p1} & ${m.t1p2}</span> <span style="margin:0 10px;font-size:1.2em;"><strong>${m.score1} - ${m.score2}</strong></span> <span style="color:#e67e22;font-weight:bold;">${m.t2p1} & ${m.t2p2}</span></div>
                     <div class="match-actions">
                         <button class="btn-sm btn-edit" onclick="editMatch('${m.id}')">✏️ Sửa</button>
-                        <button class="btn-sm btn-delete-match" onclick="deleteMatch('${m.id}')">❌ Xóa</button>
+                        <button class="btn-sm btn-delete-match" onclick="deleteMatch('${m.id}')">🗑️ Xóa (Chuyển vào thùng rác)</button>
                     </div>
                 </li>
             `).join("");
@@ -525,6 +576,23 @@
                 </div>
             `;
         });
+
+        // Cập nhật giao diện Thùng rác
+        document.getElementById('trashCount').innerText = trashMatches.length;
+        const trashList = document.getElementById('trashList');
+        if (trashMatches.length === 0) {
+            trashList.innerHTML = `<p style="color: #7f8c8d; text-align: center; font-style: italic;">Thùng rác đang trống.</p>`;
+        } else {
+            trashList.innerHTML = trashMatches.map(m => `
+                <li class="trash-item">
+                    <div><span style="color:#2980b9;font-weight:bold;">${m.t1p1} & ${m.t1p2}</span> <span style="margin:0 10px;font-size:1.2em;"><strong>${m.score1} - ${m.score2}</strong></span> <span style="color:#e67e22;font-weight:bold;">${m.t2p1} & ${m.t2p2}</span> <span style="font-size: 0.85em; color: #7f8c8d; margin-left: 10px;">(Ngày: ${m.date})</span></div>
+                    <div class="match-actions">
+                        <button class="btn-sm btn-restore" onclick="restoreMatch('${m.id}')">♻️ Khôi phục</button>
+                        <button class="btn-sm btn-delete-match" onclick="permanentDeleteMatch('${m.id}')">❌ Xóa vĩnh viễn</button>
+                    </div>
+                </li>
+            `).join("");
+        }
     }
 </script>
 
