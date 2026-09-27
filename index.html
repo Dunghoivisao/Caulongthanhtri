@@ -93,85 +93,33 @@
     <div class="note">(💡 Nhấn vào tên người chơi trong bảng để đổi tên. Sẽ đồng bộ cho tất cả mọi người)</div>
     <div style="overflow-x: auto;">
         <table>
-    <thead>
-        <tr>
-            <th>Hạng</th>
-            <th>Tên</th>
-            <th>Trận</th>
-            <th>Thắng</th>
-            <th>Thua</th>
-            <th>Hệ số</th>
-        </tr>
-    </thead>
-    <tbody id="leaderboard">
-        <!-- Javascript sẽ tự động chèn 3 người chơi vào đây -->
-    </tbody>
-    
-    <!-- Phần chân bảng cố định chứa nút Thêm người chơi -->
-    <tfoot>
-        <tr>
-            <td colspan="6" style="padding: 10px; background-color: #f8f9fa;">
-                <button class="btn-inline btn-add" style="width: 100%; margin: 0; font-size: 15px;" onclick="addPlayer()">➕ Thêm người chơi</button>
-            </td>
-        </tr>
-    </tfoot>
+            <thead>
+                <tr>
+                    <th>Hạng</th>
+                    <th>Tên</th>
+                    <th>Trận</th>
+                    <th>Thắng</th>
+                    <th>Thua</th>
+                    <th>Hệ số</th>
+                </tr>
+            </thead>
+            <tbody id="leaderboard">
+                <!-- Javascript sẽ tự động chèn 3 người chơi vào đây -->
+            </tbody>
+            <tfoot>
+                <tr>
+                    <td colspan="6" style="padding: 10px; background-color: #f8f9fa;">
+                        <button class="btn-inline btn-add" style="width: 100%; margin: 0; font-size: 15px;" onclick="addPlayer()">➕ Thêm người chơi</button>
+                    </td>
+                </tr>
+            </tfoot>
         </table>
-        
     </div>
 
     <h2>Lịch Sử Trận Đấu</h2>
-    // 2. CẬP NHẬT LỊCH SỬ TRẬN ĐẤU (NHÓM THEO NGÀY & THU GỌN)
-    const historyList = document.getElementById('historyList'); 
-    historyList.innerHTML = ""; 
+    <div id="historyList"></div>
+</div>
 
-    // Nhóm các trận đấu theo ngày
-    let matchesByDate = {};
-    [...matches].sort((a, b) => new Date(b.date) - new Date(a.date)).forEach(m => {
-        if (!matchesByDate[m.date]) {
-            matchesByDate[m.date] = [];
-        }
-        matchesByDate[m.date].push(m);
-    });
-
-    // Tạo giao diện gom nhóm theo từng ngày
-    Object.keys(matchesByDate).forEach(dateStr => {
-        let dayMatches = matchesByDate[dateStr];
-        let d = new Date(dateStr);
-        let formattedDate = `${d.getDate()}/${d.getMonth()+1}/${d.getFullYear()}`;
-        
-        let dateGroupId = "date-group-" + dateStr;
-
-        // HTML cho tiêu đề ngày (có thể bấm vào để thu gọn/mở rộng)
-        let htmlMatches = dayMatches.map(m => `
-            <li class="match-item" style="margin-top: 8px;">
-                <div><span style="color:#2980b9;font-weight:bold;">${m.t1p1} & ${m.t1p2}</span> <span style="margin:0 10px;font-size:1.2em;"><strong>${m.score1} - ${m.score2}</strong></span> <span style="color:#e67e22;font-weight:bold;">${m.t2p1} & ${m.t2p2}</span></div>
-                <div class="match-actions">
-                    <button class="btn-sm btn-edit" onclick="editMatch('${m.id}')">✏️ Sửa</button>
-                    <button class="btn-sm btn-delete-match" onclick="deleteMatch('${m.id}')">❌ Xóa</button>
-                </div>
-            </li>
-        `).join("");
-
-        historyList.innerHTML += `
-            <div style="margin-bottom: 15px; border: 1px solid #dcdde1; border-radius: 6px; overflow: hidden; background: #fff;">
-                <div onclick="toggleDateGroup('${dateGroupId}')" style="background: #34495e; color: white; padding: 10px 15px; cursor: pointer; display: flex; justify-content: space-between; align-items: center; font-weight: bold;">
-                    <span>📅 Ngày: ${formattedDate} (${dayMatches.length} trận)</span>
-                    <span>▼ Bấm để xem/ẩn</span>
-                </div>
-                <ul id="${dateGroupId}" style="list-style-type: none; padding: 10px; margin: 0; background: #f8f9fa; display: none;">
-                    ${htmlMatches}
-                </ul>
-            </div>
-        `;
-    });
-    function toggleDateGroup(id) {
-    let el = document.getElementById(id);
-    if (el.style.display === "none") {
-        el.style.display = "block";
-    } else {
-        el.style.display = "none";
-    }
-};
 <script>
     // Cấu hình Firebase
     const firebaseConfig = {
@@ -190,7 +138,6 @@
     const database = firebase.database();
     const dbRef = database.ref('Nhóm Cầu Lông_data');
 
-    // Mặc định luôn có 3 người này nếu database trống
     let playerNames = ["Người chơi 1", "Người chơi 2", "Người chơi 3"];
     let matches = [];
     let players = {};
@@ -200,35 +147,32 @@
         document.getElementById('mainApp').style.display = 'block';
     }
 
-    // LẮNG NGHE DỮ LIỆU TỪ FIREBASE (CÓ BÁO LỖI NẾU BỊ CHẶN)
+    // LẮNG NGHE DỮ LIỆU TỪ FIREBASE
     dbRef.on('value', (snapshot) => {
         const data = snapshot.val();
         if (data) {
-            // Nếu có dữ liệu người chơi trên Firebase thì lấy, không thì giữ nguyên 3 người mặc định
             if (data.players && data.players.length > 0) {
                 playerNames = data.players;
             }
             if (data.matches) {
                 matches = data.matches;
             } else {
-                matches = []; // Đảm bảo list trận không bị lỗi
+                matches = [];
             }
         } else {
-            // Nếu database trống không, đẩy 3 người mặc định lên luôn
             saveData();
         }
         updateUI(); 
     }, (error) => {
-        alert("Lỗi không thể kết nối Firebase! Hãy kiểm tra lại tab 'Rules' trên Firebase. Chi tiết: " + error.message);
+        alert("Lỗi không thể kết nối Firebase! Chi tiết: " + error.message);
     });
 
-    // HÀM LƯU DỮ LIỆU (CÓ CẢNH BÁO NẾU LƯU THẤT BẠI)
     function saveData() {
         dbRef.set({
             players: playerNames,
             matches: matches
         }).catch((error) => {
-            alert("Lỗi không thể lưu dữ liệu! Vui lòng làm theo Bước 1 để mở quyền (Rules) Firebase. Chi tiết: " + error.message);
+            alert("Lỗi không thể lưu dữ liệu! Chi tiết: " + error.message);
         });
     }
 
@@ -282,7 +226,6 @@
         }
     }
 
-    // (Giữ nguyên các hàm addMatch, editMatch, deleteMatch như cũ)
     function addMatch() {
         const date = document.getElementById('matchDate').value;
         const t1p1 = document.getElementById('t1p1').value, t1p2 = document.getElementById('t1p2').value;
@@ -315,6 +258,15 @@
         }
     }
 
+    function toggleDateGroup(id) {
+        let el = document.getElementById(id);
+        if (el.style.display === "none") {
+            el.style.display = "block";
+        } else {
+            el.style.display = "none";
+        }
+    }
+
     function updateUI() {
         calculateStats();
         const selects = ['t1p1', 't1p2', 't2p1', 't2p2'].map(id => document.getElementById(id));
@@ -333,7 +285,6 @@
         const tbody = document.getElementById('leaderboard'); 
         tbody.innerHTML = ""; 
         
-        // Vẽ danh sách người chơi (mặc định sẽ là 3 người)
         playersArray.forEach((p, index) => {
             tbody.innerHTML += `<tr>
                 <td><strong>${index + 1}</strong></td>
@@ -345,19 +296,48 @@
             </tr>`;
         });
 
-        // 2. CẬP NHẬT LỊCH SỬ
+        // 2. CẬP NHẬT LỊCH SỬ TRẬN ĐẤU (NHÓM THEO NGÀY & THU GỌN)
         const historyList = document.getElementById('historyList'); 
         historyList.innerHTML = ""; 
+
+        let matchesByDate = {};
         [...matches].sort((a, b) => new Date(b.date) - new Date(a.date)).forEach(m => {
-            let d = new Date(m.date);
-            historyList.innerHTML += `<li class="match-item">
-                <div style="font-size:0.9em;color:#7f8c8d;margin-bottom:4px;">📅 Ngày: ${d.getDate()}/${d.getMonth()+1}/${d.getFullYear()}</div>
-                <div><span style="color:#2980b9;font-weight:bold;">${m.t1p1} & ${m.t1p2}</span> <span style="margin:0 10px;font-size:1.2em;"><strong>${m.score1} - ${m.score2}</strong></span> <span style="color:#e67e22;font-weight:bold;">${m.t2p1} & ${m.t2p2}</span></div>
-                <div class="match-actions">
-                    <button class="btn-sm btn-edit" onclick="editMatch('${m.id}')">✏️ Sửa</button>
-                    <button class="btn-sm btn-delete-match" onclick="deleteMatch('${m.id}')">❌ Xóa</button>
+            if (!matchesByDate[m.date]) {
+                matchesByDate[m.date] = [];
+            }
+            matchesByDate[m.date].push(m);
+        });
+
+        Object.keys(matchesByDate).forEach(dateStr => {
+            let dayMatches = matchesByDate[dateStr];
+            let d = new Date(dateStr);
+            let formattedDate = `${d.getDate()}/${d.getMonth()+1}/${d.getFullYear()}`;
+            let dateGroupId = "date-group-" + dateStr;
+
+            let htmlMatches = dayMatches.map(m => `
+                <li class="match-item" style="margin-top: 8px;">
+                    <div><span style="color:#2980b9;font-weight:bold;">${m.t1p1} & ${m.t1p2}</span> <span style="margin:0 10px;font-size:1.2em;"><strong>${m.score1} - ${m.score2}</strong></span> <span style="color:#e67e22;font-weight:bold;">${m.t2p1} & ${m.t2p2}</span></div>
+                    <div class="match-actions">
+                        <button class="btn-sm btn-edit" onclick="editMatch('${m.id}')">✏️ Sửa</button>
+                        <button class="btn-sm btn-delete-match" onclick="deleteMatch('${m.id}')">❌ Xóa</button>
+                    </div>
+                </li>
+            `).join("");
+
+            historyList.innerHTML += `
+                <div style="margin-bottom: 15px; border: 1px solid #dcdde1; border-radius: 6px; overflow: hidden; background: #fff;">
+                    <div onclick="toggleDateGroup('${dateGroupId}')" style="background: #34495e; color: white; padding: 10px 15px; cursor: pointer; display: flex; justify-content: space-between; align-items: center; font-weight: bold;">
+                        <span>📅 Ngày: ${formattedDate} (${dayMatches.length} trận)</span>
+                        <span>▼ Bấm để xem/ẩn</span>
+                    </div>
+                    <ul id="${dateGroupId}" style="list-style-type: none; padding: 10px; margin: 0; background: #f8f9fa; display: none;">
+                        ${htmlMatches}
+                    </ul>
                 </div>
-            </li>`;
+            `;
         });
     }
 </script>
+
+</body>
+</html>
