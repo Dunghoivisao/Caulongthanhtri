@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Nhóm Cầu Lông</title>
     
-    <!-- Thư viện kết nối Firebase (Bắt buộc) -->
+    <!-- Thư viện Firebase Realtime Database (Miễn phí hoàn toàn) -->
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
 
@@ -28,13 +28,27 @@
         .btn-delete-match { background-color: #c0392b; }
         
         table { width: 100%; border-collapse: collapse; margin-top: 10px; }
-        th, td { border: 1px solid #ddd; padding: 10px; text-align: center; }
+        th, td { border: 1px solid #ddd; padding: 10px; text-align: center; vertical-align: middle; }
         th { background-color: #34495e; color: white; }
         .match-history { list-style-type: none; padding: 0; }
         .match-item { background: #ecf0f1; margin-bottom: 8px; padding: 12px; border-radius: 4px; border-left: 5px solid #3498db; line-height: 1.5; }
         .match-actions { margin-top: 8px; }
-        .editable-name { color: #2980b9; cursor: pointer; font-weight: bold; text-decoration: underline dotted; }
+        
+        /* CSS cho Avatar và Tên người chơi */
+        .player-cell { display: flex; align-items: center; gap: 10px; justify-content: left; flex-wrap: wrap; }
+        .player-avatar { width: 35px; height: 35px; border-radius: 50%; object-fit: cover; border: 2px solid #3498db; cursor: pointer; background-color: #ecf0f1; display: flex; align-items: center; justify-content: center; font-size: 14px; color: #7f8c8d; }
+        .player-avatar:hover { opacity: 0.8; border-color: #e67e22; }
+        .editable-name { color: #2980b9; cursor: pointer; font-weight: bold; text-decoration: underline dotted; text-align: left; }
         .editable-name:hover { color: #e67e22; }
+
+        /* Huy hiệu chuỗi ngày liên tục tự động */
+        .streak-badge { background-color: #e67e22; color: white; padding: 2px 8px; border-radius: 10px; font-size: 0.8em; font-weight: bold; display: inline-flex; align-items: center; gap: 3px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
+
+        /* Màu sắc cho Top 3 (Vàng, Bạc, Đồng) */
+        .rank-1 { background-color: #fff9c4 !important; } 
+        .rank-2 { background-color: #f1f2f6 !important; } 
+        .rank-3 { background-color: #ffeaa7 !important; } 
+
         .note { text-align: center; font-size: 0.9em; color: #7f8c8d; margin-top: -10px; margin-bottom: 15px; }
         .live-badge { display: inline-block; background-color: #e74c3c; color: white; padding: 3px 8px; border-radius: 12px; font-size: 12px; font-weight: bold; margin-left: 10px; animation: blink 1.5s infinite; }
         @keyframes blink { 0% { opacity: 1; } 50% { opacity: 0.5; } 100% { opacity: 1; } }
@@ -54,7 +68,7 @@
 
 <div id="welcomeScreen" class="welcome-screen">
     <h1>🏸 Welcome to Pick Thủ Thanh Trì 🏸</h1>
-    <p>Ứng dụng giúp bạn ghi lại tỷ số, tự động xếp hạng. Dữ liệu được đồng bộ trực tiếp cho tất cả mọi người!</p>
+    <p>Ứng dụng giúp bạn ghi lại tỷ số, tự động xếp hạng và tính chuỗi ngày liên tục giữ ngôi!</p>
     <button class="btn-enter" onclick="enterApp()">Enter</button>
 </div>
 
@@ -90,22 +104,20 @@
     </div>
 
     <h2>Bảng Xếp Hạng Cá Nhân</h2>
-    <div class="note">(💡 Nhấn vào tên người chơi trong bảng để đổi tên. Sẽ đồng bộ cho tất cả mọi người)</div>
+    <div class="note">(💡 Top 3 tô màu huy chương. Hệ thống tự động tính chuỗi số ngày liên tục giữ vị trí qua các buổi đấu!)</div>
     <div style="overflow-x: auto;">
         <table>
             <thead>
                 <tr>
                     <th>Hạng</th>
-                    <th>Tên</th>
+                    <th>Tên người chơi</th>
                     <th>Trận</th>
                     <th>Thắng</th>
                     <th>Thua</th>
                     <th>Hệ số</th>
                 </tr>
             </thead>
-            <tbody id="leaderboard">
-                <!-- Javascript sẽ tự động chèn 3 người chơi vào đây -->
-            </tbody>
+            <tbody id="leaderboard"></tbody>
             <tfoot>
                 <tr>
                     <td colspan="6" style="padding: 10px; background-color: #f8f9fa;">
@@ -121,12 +133,11 @@
 </div>
 
 <script>
-    // Cấu hình Firebase
     const firebaseConfig = {
       apiKey: "AIzaSyBrLE0e4xfI5f7Ocuxyj4ls0417sY-vKJQ",
       authDomain: "nhomcaulong-18339.firebaseapp.com",
       projectId: "nhomcaulong-18339",
-      storageBucket: "nhomcaulong-18339.firebasestorage.app",
+      storageBucket: "nhomcaulong-18339.appspot.com",
       messagingSenderId: "512401510912",
       appId: "1:512401510912:web:4aa6467b4824b05326bee5",
       measurementId: "G-HNLKEFDPTF"
@@ -139,20 +150,24 @@
     const dbRef = database.ref('Nhóm Cầu Lông_data');
 
     let playerNames = ["Người chơi 1", "Người chơi 2", "Người chơi 3"];
+    let playerAvatars = {}; 
     let matches = [];
     let players = {};
+    let playerStreaks = {}; // Lưu chuỗi ngày liên tục tự động tính toán
 
     function enterApp() {
         document.getElementById('welcomeScreen').style.display = 'none';
         document.getElementById('mainApp').style.display = 'block';
     }
 
-    // LẮNG NGHE DỮ LIỆU TỪ FIREBASE
     dbRef.on('value', (snapshot) => {
         const data = snapshot.val();
         if (data) {
             if (data.players && data.players.length > 0) {
                 playerNames = data.players;
+            }
+            if (data.playerAvatars) {
+                playerAvatars = data.playerAvatars;
             }
             if (data.matches) {
                 matches = data.matches;
@@ -162,21 +177,125 @@
         } else {
             saveData();
         }
+        calculateAllStatsAndStreaks();
         updateUI(); 
     }, (error) => {
-        alert("Lỗi không thể kết nối Firebase! Chi tiết: " + error.message);
+        alert("Lỗi kết nối Firebase: " + error.message);
     });
 
     function saveData() {
         dbRef.set({
             players: playerNames,
+            playerAvatars: playerAvatars,
             matches: matches
         }).catch((error) => {
-            alert("Lỗi không thể lưu dữ liệu! Chi tiết: " + error.message);
+            alert("Lỗi lưu dữ liệu: " + error.message);
         });
     }
 
-    function calculateStats() {
+    // Thuật toán tự động tính toán số liệu và chuỗi ngày liên tục (Streak) dựa trên lịch sử
+    function calculateAllStatsAndStreaks() {
+        players = {};
+        playerNames.forEach(name => { 
+            players[name] = { name: name, matches: 0, wins: 0, losses: 0, pointsDiff: 0 }; 
+        });
+
+        // Sắp xếp các trận đấu theo thứ tự thời gian tăng dần (từ cũ đến mới)
+        let sortedMatches = [...matches].sort((a, b) => new Date(a.date) - new Date(b.date));
+
+        // Nhóm các trận đấu theo từng ngày
+        let matchesByDate = {};
+        sortedMatches.forEach(m => {
+            if (!matchesByDate[m.date]) {
+                matchesByDate[m.date] = [];
+            }
+            matchesByDate[m.date].push(m);
+        });
+
+        let sortedDates = Object.keys(matchesByDate).sort((a, b) => new Date(a) - new Date(b));
+
+        // Theo dõi lịch sử bảng xếp hạng qua các ngày để tính chuỗi liên tục
+        let currentRanks = {}; // { playerName: rank }
+        let currentStreakHolders = {}; // { playerName: { rank: number, days: number } }
+        playerStreaks = {};
+
+        let lastDateObj = null;
+
+        sortedDates.forEach(dateStr => {
+            let dayMatches = matchesByDate[dateStr];
+            
+            // Cập nhật điểm tích lũy tính đến hết ngày hôm đó
+            dayMatches.forEach(m => {
+                [m.t1p1, m.t1p2].forEach(p => {
+                    if (players[p]) {
+                        players[p].matches += 1; 
+                        players[p].pointsDiff += (m.score1 - m.score2);
+                        if (m.score1 > m.score2) players[p].wins += 1; 
+                        else if (m.score2 > m.score1) players[p].losses += 1;
+                    }
+                });
+                [m.t2p1, m.t2p2].forEach(p => {
+                    if (players[p]) {
+                        players[p].matches += 1; 
+                        players[p].pointsDiff += (m.score2 - m.score1);
+                        if (m.score2 > m.score1) players[p].wins += 1; 
+                        else if (m.score1 > m.score2) players[p].losses += 1;
+                    }
+                });
+            });
+
+            // Xác định bảng xếp hạng tính đến hết ngày hôm nay
+            let dayPlayersArray = Object.values(players).filter(p => p.matches > 0).sort((a, b) => {
+                if (b.wins !== a.wins) return b.wins - a.wins;
+                return b.pointsDiff - a.pointsDiff;
+            });
+
+            let newRanks = {};
+            dayPlayersArray.forEach((p, idx) => {
+                newRanks[p.name] = idx + 1; // Hạng 1, 2, 3...
+            });
+
+            let currentDateObj = new Date(dateStr);
+
+            // Tính số ngày trôi qua kể từ ngày có buổi đánh trước đó (để tính gộp cả những ngày nghỉ giữa 2 buổi đánh)
+            let gapDays = 1;
+            if (lastDateObj) {
+                let diffTime = currentDateObj - lastDateObj;
+                gapDays = Math.round(diffTime / (1000 * 60 * 60 * 24));
+                if (gapDays < 1) gapDays = 1;
+            }
+
+            // Cập nhật chuỗi ngày liên tục cho từng người chơi
+            Object.keys(newRanks).forEach(pName => {
+                let rank = newRanks[pName];
+                // Chỉ xét top 1 (hoặc bạn có thể mở rộng ra các hạng khác nếu muốn)
+                if (rank === 1) {
+                    if (currentStreakHolders[pName] && currentStreakHolders[pName].rank === 1) {
+                        // Vẫn giữ vững vị trí top 1 so với lần đánh trước -> cộng dồn số ngày (bao gồm cả ngày nghỉ ở giữa)
+                        currentStreakHolders[pName].days += gapDays;
+                    } else {
+                        // Mới vừa vươn lên top 1 hoặc đổi hạng -> bắt đầu chuỗi mới tính là gapDays (hoặc 1 ngày nếu là ngày đầu)
+                        currentStreakHolders[pName] = { rank: 1, days: lastDateObj ? gapDays : 1 };
+                    }
+                } else {
+                    // Nếu rớt hạng khỏi top 1, xóa hoặc reset chuỗi top 1 của họ
+                    if (currentStreakHolders[pName]) {
+                        delete currentStreakHolders[pName];
+                    }
+                }
+            });
+
+            // Lưu lại kết quả chuỗi của ngày hôm nay
+            Object.keys(currentStreakHolders).forEach(pName => {
+                if (newRanks[pName] === 1) {
+                    playerStreaks[pName] = currentStreakHolders[pName].days;
+                }
+            });
+
+            lastDateObj = currentDateObj;
+        });
+
+        // Cập nhật lại số liệu tổng toàn bộ trận đấu hiện tại để hiển thị bảng xếp hạng chính thức
         players = {};
         playerNames.forEach(name => { players[name] = { name: name, matches: 0, wins: 0, losses: 0, pointsDiff: 0 }; });
         matches.forEach(m => {
@@ -216,6 +335,11 @@
             let index = playerNames.indexOf(oldName);
             if (index !== -1) playerNames[index] = trimmedName;
             
+            if (playerAvatars[oldName]) {
+                playerAvatars[trimmedName] = playerAvatars[oldName];
+                delete playerAvatars[oldName];
+            }
+
             matches.forEach(m => {
                 if (m.t1p1 === oldName) m.t1p1 = trimmedName; 
                 if (m.t1p2 === oldName) m.t1p2 = trimmedName;
@@ -223,6 +347,19 @@
                 if (m.t2p2 === oldName) m.t2p2 = trimmedName;
             });
             saveData(); 
+        }
+    }
+
+    function changeAvatar(playerName) {
+        let currentUrl = playerAvatars[playerName] || "";
+        let newUrl = prompt(`Nhập đường link (URL) ảnh đại diện cho "${playerName}":`, currentUrl);
+        if (newUrl !== null) {
+            if (newUrl.trim() === "") {
+                delete playerAvatars[playerName]; 
+            } else {
+                playerAvatars[playerName] = newUrl.trim();
+            }
+            saveData();
         }
     }
 
@@ -268,10 +405,9 @@
     }
 
     function updateUI() {
-        calculateStats();
         const selects = ['t1p1', 't1p2', 't2p1', 't2p2'].map(id => document.getElementById(id));
         let currSelections = selects.map(sel => sel.value);
-        let optionsHTML = playerNames.map(name => `<option value="${name}">${name}</option>`).join("");
+        let optionsHTML = playerNames.map(name => `<option value="${name}">${name}</name>`).join("");
         
         selects.forEach((sel, idx) => {
             sel.innerHTML = optionsHTML;
@@ -280,15 +416,48 @@
         
         if (!document.getElementById('matchDate').value) document.getElementById('matchDate').valueAsDate = new Date();
 
-        // 1. CẬP NHẬT BẢNG XẾP HẠNG
+        // 1. CẬP NHẬT BẢNG XẾP HẠNG & HIỂN THỊ CHUỖI NGÀY LIÊN TỤC TỰ ĐỘNG
         let playersArray = Object.values(players).sort((a, b) => b.wins !== a.wins ? b.wins - a.wins : b.pointsDiff - a.pointsDiff);
         const tbody = document.getElementById('leaderboard'); 
         tbody.innerHTML = ""; 
         
         playersArray.forEach((p, index) => {
-            tbody.innerHTML += `<tr>
-                <td><strong>${index + 1}</strong></td>
-                <td class="editable-name" onclick="editPlayerName('${p.name}')">${p.name} ✏️</td>
+            let rank = index + 1;
+            let rowClass = "";
+            let rankDisplay = `<strong>${rank}</strong>`;
+
+            if (rank === 1) {
+                rowClass = "rank-1";
+                rankDisplay = `👑 <strong>1</strong>`; 
+            } else if (rank === 2) {
+                rowClass = "rank-2";
+                rankDisplay = `🥈 <strong>2</strong>`;
+            } else if (rank === 3) {
+                rowClass = "rank-3";
+                rankDisplay = `🥉 <strong>3</strong>`;
+            }
+
+            let avatarImgHtml = playerAvatars[p.name] 
+                ? `<img src="${playerAvatars[p.name]}" class="player-avatar" onclick="changeAvatar('${p.name}')" title="Bấm để đổi link ảnh">`
+                : `<div class="player-avatar" onclick="changeAvatar('${p.name}')" title="Bấm để thêm link ảnh">📷</div>`;
+
+            // Hiển thị huy hiệu chuỗi ngày liên tục nếu đang đứng Top 1
+            let streakDays = playerStreaks[p.name] || 0;
+            let streakHtml = (rank === 1 && streakDays > 0)
+                ? `<span class="streak-badge" title="Chuỗi ngày liên tục giữ ngôi Hạng 1">🔥 Giữ đỉnh: ${streakDays} ngày</span>` 
+                : "";
+
+            tbody.innerHTML += `<tr class="${rowClass}">
+                <td>${rankDisplay}</td>
+                <td>
+                    <div class="player-cell">
+                        ${avatarImgHtml}
+                        <div>
+                            <span class="editable-name" onclick="editPlayerName('${p.name}')">${p.name} ✏️</span><br>
+                            ${streakHtml}
+                        </div>
+                    </div>
+                </td>
                 <td>${p.matches}</td>
                 <td>${p.wins}</td>
                 <td>${p.losses}</td>
@@ -296,7 +465,7 @@
             </tr>`;
         });
 
-        // 2. CẬP NHẬT LỊCH SỬ TRẬN ĐẤU (NHÓM THEO NGÀY & THU GỌN)
+        // 2. CẬP NHẬT LỊCH SỬ TRẬN ĐẤU
         const historyList = document.getElementById('historyList'); 
         historyList.innerHTML = ""; 
 
