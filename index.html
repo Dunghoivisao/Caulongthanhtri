@@ -79,10 +79,11 @@
         body.dark-mode .money-modal [style*="background: #eaf2f8"] { background: #2c3e50 !important; border-color: #555 !important; }
         body.dark-mode .money-modal [style*="background: #e8f8f5"] { background: #1b4f42 !important; border-color: #27ae60 !important; }
 
+        /* Nút chế độ tối ở đầu trang (không bị trôi theo màn hình) */
         #themeToggleBtn {
-            position: fixed; top: 15px; right: 15px; z-index: 9999;
-            background: #34495e; color: white; border: none; padding: 8px 12px;
-            border-radius: 20px; cursor: pointer; font-size: 14px; box-shadow: 0 2px 5px rgba(0,0,0,0.3);
+            position: absolute; top: 0; right: 0; z-index: 10;
+            background: #34495e; color: white; border: none; padding: 6px 12px;
+            border-radius: 6px; cursor: pointer; font-size: 13px; box-shadow: 0 2px 5px rgba(0,0,0,0.2);
             transition: background 0.3s;
         }
         #themeToggleBtn:hover { background: #2c3e50; }
@@ -192,8 +193,8 @@
             margin-left: 2px;
         }
         .momentum-arrow {
-            font-size: 0.85em;
-            margin-left: 5px;
+            font-size: 0.9em;
+            margin-left: 8px; /* Cho mũi tên cách ra một xíu cho thoáng */
             display: inline-block;
         }
         .note { text-align: center; font-size: 0.9em; color: #555; margin-top: -10px; margin-bottom: 15px; transition: color 0.3s; }
@@ -212,8 +213,6 @@
 </head>
 <body>
 
-<button id="themeToggleBtn" onclick="toggleTheme()" style="display: none;">🌙 Chế độ Tối</button>
-
 <div id="welcomeScreen" class="welcome-screen">
     <h1>🏸 Welcome to Pick Thủ Thanh Trì 🏸</h1>
     <p>Ứng dụng ghi điểm cầu lông, xếp hạng và quản lý thu chi tiện lợi!</p>
@@ -222,6 +221,9 @@
 
 <div class="container" id="mainApp" style="display: none;">
     <div class="header-container">
+        <!-- Nút Chế độ Tối/Sáng đặt ở góc trên bên phải trang web, cuộn theo trang -->
+        <button id="themeToggleBtn" onclick="toggleTheme()">🌙 Chế độ Tối</button>
+        
         <h1>🏆 Bảng Điểm Cầu Lông <span class="live-badge">🔴 LIVE</span></h1>
         <button class="btn-thu-chi-main" onclick="toggleMoneyModal()">💰 Mở Bảng Quản Lý Thu Chi</button>
     </div>
@@ -392,7 +394,6 @@
     function enterApp() {
         document.getElementById('welcomeScreen').style.display = 'none';
         document.getElementById('mainApp').style.display = 'block';
-        document.getElementById('themeToggleBtn').style.display = 'block'; // Hiện nút theme
     }
 
     dbRef.on('value', (snapshot) => {
@@ -725,7 +726,7 @@
                 streakHTML = `<span class="streak-sup">${streakDays}</span>`;
             }
             
-            // Dùng mũi tên thẳng ↑ và ↓
+            // Mũi tên phong độ (cách ra một xíu, giữ nguyên dạng mũi tên)
             let momentumHTML = "";
             if (p.lastMatchResult === 'win') {
                 momentumHTML = `<span class="momentum-arrow" style="color: #27ae60;" title="Vừa thắng trận gần nhất">↑</span>`;
