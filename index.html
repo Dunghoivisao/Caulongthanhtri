@@ -120,8 +120,58 @@
     </div>
 
     <h2>Lịch Sử Trận Đấu</h2>
-    <ul class="match-history" id="historyList"></ul>
-</div>
+    // 2. CẬP NHẬT LỊCH SỬ TRẬN ĐẤU (NHÓM THEO NGÀY & THU GỌN)
+    const historyList = document.getElementById('historyList'); 
+    historyList.innerHTML = ""; 
+
+    // Nhóm các trận đấu theo ngày
+    let matchesByDate = {};
+    [...matches].sort((a, b) => new Date(b.date) - new Date(a.date)).forEach(m => {
+        if (!matchesByDate[m.date]) {
+            matchesByDate[m.date] = [];
+        }
+        matchesByDate[m.date].push(m);
+    });
+
+    // Tạo giao diện gom nhóm theo từng ngày
+    Object.keys(matchesByDate).forEach(dateStr => {
+        let dayMatches = matchesByDate[dateStr];
+        let d = new Date(dateStr);
+        let formattedDate = `${d.getDate()}/${d.getMonth()+1}/${d.getFullYear()}`;
+        
+        let dateGroupId = "date-group-" + dateStr;
+
+        // HTML cho tiêu đề ngày (có thể bấm vào để thu gọn/mở rộng)
+        let htmlMatches = dayMatches.map(m => `
+            <li class="match-item" style="margin-top: 8px;">
+                <div><span style="color:#2980b9;font-weight:bold;">${m.t1p1} & ${m.t1p2}</span> <span style="margin:0 10px;font-size:1.2em;"><strong>${m.score1} - ${m.score2}</strong></span> <span style="color:#e67e22;font-weight:bold;">${m.t2p1} & ${m.t2p2}</span></div>
+                <div class="match-actions">
+                    <button class="btn-sm btn-edit" onclick="editMatch('${m.id}')">✏️ Sửa</button>
+                    <button class="btn-sm btn-delete-match" onclick="deleteMatch('${m.id}')">❌ Xóa</button>
+                </div>
+            </li>
+        `).join("");
+
+        historyList.innerHTML += `
+            <div style="margin-bottom: 15px; border: 1px solid #dcdde1; border-radius: 6px; overflow: hidden; background: #fff;">
+                <div onclick="toggleDateGroup('${dateGroupId}')" style="background: #34495e; color: white; padding: 10px 15px; cursor: pointer; display: flex; justify-content: space-between; align-items: center; font-weight: bold;">
+                    <span>📅 Ngày: ${formattedDate} (${dayMatches.length} trận)</span>
+                    <span>▼ Bấm để xem/ẩn</span>
+                </div>
+                <ul id="${dateGroupId}" style="list-style-type: none; padding: 10px; margin: 0; background: #f8f9fa; display: none;">
+                    ${htmlMatches}
+                </ul>
+            </div>
+        `;
+    });
+    function toggleDateGroup(id) {
+    let el = document.getElementById(id);
+    if (el.style.display === "none") {
+        el.style.display = "block";
+    } else {
+        el.style.display = "none";
+    }
+};
 <script>
     // Cấu hình Firebase
     const firebaseConfig = {
