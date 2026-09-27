@@ -41,8 +41,8 @@
         .editable-name { color: #2980b9; cursor: pointer; font-weight: bold; text-decoration: underline dotted; text-align: left; }
         .editable-name:hover { color: #e67e22; }
 
-        /* Số ngày liên tục hiển thị nhỏ mờ ở phía trên tên */
-        .streak-badge-sub { font-size: 0.72em; color: #95a5a6; font-weight: normal; display: block; line-height: 1.1; margin-bottom: 2px; text-align: left; }
+        /* Số ngày liên tục hiển thị nhỏ mờ ở phía sau tên và lệch lên trên */
+        .streak-badge-inline { font-size: 0.7em; color: #95a5a6; font-weight: normal; vertical-align: super; margin-left: 6px; padding: 1px 5px; border: 1px solid #dcdde1; border-radius: 4px; background: #fafafa; display: inline-block; }
 
         /* Màu sắc cho Top 3 (Vàng, Bạc, Đồng) */
         .rank-1 { background-color: #fff9c4 !important; } 
@@ -104,7 +104,7 @@
     </div>
 
     <h2>Bảng Xếp Hạng Cá Nhân</h2>
-    <div class="note">(💡 Top 3 tô màu huy chương kèm theo số ngày liên tục hiển thị nhỏ mờ ở phía trên tên!)</div>
+    <div class="note">(💡 Top 3 tô màu huy chương kèm theo số ngày liên tục nhỏ mờ ở ngay phía sau tên!)</div>
     <div style="overflow-x: auto;">
         <table>
             <thead>
@@ -426,14 +426,14 @@
                 ? `<img src="${playerAvatars[p.name]}" class="player-avatar" onclick="changeAvatar('${p.name}')" title="Bấm để đổi link ảnh">`
                 : `<div class="player-avatar" onclick="changeAvatar('${p.name}')" title="Bấm để thêm link ảnh">📷</div>`;
 
-            // Lấy số ngày liên tục nếu ở Top 1, 2, hoặc 3 (hiển thị nhỏ mờ ở phía trên tên)
+            // Lấy số ngày liên tục nếu ở Top 1, 2, hoặc 3 (hiển thị số nhỏ mờ ở ngay sau tên)
             let streakDays = 0;
             if (rank === 1 && playerStreaks[1][p.name]) streakDays = playerStreaks[1][p.name];
             else if (rank === 2 && playerStreaks[2][p.name]) streakDays = playerStreaks[2][p.name];
             else if (rank === 3 && playerStreaks[3][p.name]) streakDays = playerStreaks[3][p.name];
 
             let streakHtml = streakDays > 0 
-                ? `<span class="streak-badge-sub" title="Số ngày liên tục giữ hạng ${rank}">${streakDays} ngày</span>` 
+                ? `<span class="streak-badge-inline" title="Số ngày liên tục giữ hạng ${rank}">${streakDays}</span>` 
                 : "";
 
             tbody.innerHTML += `<tr class="${rowClass}">
@@ -442,8 +442,8 @@
                     <div class="player-cell">
                         ${avatarImgHtml}
                         <div>
-                            ${streakHtml}
                             <span class="editable-name" onclick="editPlayerName('${p.name}')">${p.name} ✏️</span>
+                            ${streakHtml}
                         </div>
                     </div>
                 </td>
