@@ -46,7 +46,7 @@
             transition: background 0.3s;
         }
         
-        /* Cấu trúc tiêu đề mới không bị che chữ */
+        /* Cấu trúc tiêu đề không bị che chữ */
         .header-container { 
             margin-bottom: 20px; 
         }
@@ -204,9 +204,11 @@
         }
         .editable-name:hover { color: #e67e22; text-decoration: underline; }
         
+        /* Chỉnh số ngày giữ chuỗi đẩy lên cao giống như số mũ */
         .streak-sup {
-            font-size: 0.7em;
-            vertical-align: super;
+            font-size: 0.65em;
+            position: relative;
+            top: -6px;
             color: #7f8c8d; 
             font-weight: bold;
             margin-left: 2px;
@@ -378,7 +380,7 @@
 </div>
 
 <script>
-    // Xử lý chế độ Sáng / Tối
+    // Xử lý chế độ Sáng / Tối và cập nhật ngày thực tế theo thời gian thực
     function toggleTheme() {
         document.body.classList.toggle('dark-mode');
         const btn = document.getElementById('themeToggleBtn');
@@ -390,11 +392,15 @@
             localStorage.setItem('theme', 'light');
         }
     }
+
     document.addEventListener('DOMContentLoaded', () => {
         if (localStorage.getItem('theme') === 'dark') {
             document.body.classList.add('dark-mode');
             document.getElementById('themeToggleBtn').innerHTML = "☀️ Chế độ Sáng";
         }
+        // Cập nhật ngày theo thời gian thực mỗi khi tải lại trang / sang ngày mới
+        const today = new Date();
+        document.getElementById('matchDate').valueAsDate = today;
     });
 
     const firebaseConfig = {
@@ -650,7 +656,7 @@
         let isOpening = modalOverlay.style.display !== "flex";
         modalOverlay.style.display = isOpening ? "flex" : "none";
         
-        if (isOpening && !document.getElementById('moneyDate').value) {
+        if (isOpening) {
             document.getElementById('moneyDate').valueAsDate = new Date();
             loadMoneyDataForSelectedDate();
         }
@@ -736,7 +742,6 @@
             sel.value = playerNames.includes(currSelections[idx]) ? currSelections[idx] : playerNames[idx % playerNames.length];
         });
         
-        if (!document.getElementById('matchDate').value) document.getElementById('matchDate').valueAsDate = new Date();
         let playersArray = Object.values(players).sort((a, b) => b.wins !== a.wins ? b.wins - a.wins : b.pointsDiff - a.pointsDiff);
         
         updateStreaks(playersArray);
@@ -756,7 +761,6 @@
                 streakHTML = `<span class="streak-sup">${streakDays}</span>`;
             }
             
-            // Mũi tên phong độ dày dặn hơn (dùng ký hiệu ⬆ ⬇, đặt phía sau tên, không phải hình tam giác)
             let momentumHTML = "";
             if (p.lastMatchResult === 'win') {
                 momentumHTML = `<span class="momentum-arrow" style="color: #27ae60;" title="Vừa thắng trận gần nhất">⬆</span>`;
