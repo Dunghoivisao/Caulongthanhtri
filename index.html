@@ -16,10 +16,11 @@
             margin: 0; 
             padding: 10px; 
             position: relative;
-            background-color: #f4f7f6;
+            background-color: #111;
+            min-height: 100vh;
         }
         
-        /* Hình nền sân cầu lông với độ mờ 50% */
+        /* Hình nền sân cầu lông với độ mờ 50% phủ toàn màn hình */
         body::before {
             content: "";
             position: fixed;
@@ -31,7 +32,16 @@
             z-index: -1;
         }
 
-        .container { max-width: 800px; margin: 0 auto; background: rgba(255, 255, 255, 0.95); padding: 20px; border-radius: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.15); position: relative; }
+        /* Khung nội dung hòa quyện với hình nền, bỏ nền trắng đặc thô cứng */
+        .container { 
+            max-width: 800px; 
+            margin: 0 auto; 
+            background: rgba(255, 255, 255, 0.90); 
+            padding: 20px; 
+            border-radius: 8px; 
+            box-shadow: 0 4px 20px rgba(0,0,0,0.3); 
+            position: relative; 
+        }
         
         .header-container { text-align: center; margin-bottom: 20px; position: relative; }
         h1 { color: #2c3e50; margin: 10px 0; font-size: 1.8em; }
@@ -43,7 +53,7 @@
         }
         .btn-thu-chi-main:hover { background: #d35400; }
 
-        /* Modal Popup Thu Chi */
+        /* Modal Popup Chung */
         .modal-overlay {
             display: none;
             position: fixed;
@@ -97,15 +107,17 @@
         .btn-sm { width: auto; padding: 5px 10px; font-size: 12px; margin-top: 5px; margin-right: 5px; display: inline-block; }
         .btn-edit { background-color: #f39c12; }
         .btn-delete-match { background-color: #c0392b; }
+        .btn-trash-main { background-color: #7f8c8d; margin-bottom: 15px; }
+        .btn-trash-main:hover { background-color: #626567; }
         
         table { width: 100%; border-collapse: collapse; margin-top: 10px; }
         th, td { border: 1px solid #ddd; padding: 8px 6px; text-align: center; vertical-align: middle; font-size: 0.95em; }
         th { background-color: #34495e; color: white; }
         
         /* Màu nền cho Top 1, 2, 3 */
-        tr.rank-1 { background-color: rgba(255, 249, 230, 0.9); }
-        tr.rank-2 { background-color: rgba(242, 244, 244, 0.9); }
-        tr.rank-3 { background-color: rgba(253, 242, 233, 0.9); }
+        tr.rank-1 { background-color: rgba(255, 249, 230, 0.95); }
+        tr.rank-2 { background-color: rgba(242, 244, 244, 0.95); }
+        tr.rank-3 { background-color: rgba(253, 242, 233, 0.95); }
 
         .match-item { background: #ecf0f1; margin-bottom: 8px; padding: 12px; border-radius: 4px; border-left: 5px solid #3498db; line-height: 1.5; }
         .match-actions { margin-top: 8px; }
@@ -138,7 +150,7 @@
         }
         .editable-name:hover { color: #e67e22; text-decoration: underline; }
         
-        /* Hiển thị số ngày giữ hạng dạng mũ ở trên - Chỉ dành cho Top 3, màu xám nhạt */
+        /* Hiển thị số ngày giữ hạng dạng mũ ở trên - Chỉ dành cho Top 3 */
         .streak-sup {
             font-size: 0.7em;
             vertical-align: super;
@@ -147,7 +159,7 @@
             margin-left: 2px;
         }
 
-        .note { text-align: center; font-size: 0.9em; color: #7f8c8d; margin-top: -10px; margin-bottom: 15px; }
+        .note { text-align: center; font-size: 0.9em; color: #555; margin-top: -10px; margin-bottom: 15px; }
         .live-badge { display: inline-block; background-color: #e74c3c; color: white; padding: 3px 8px; border-radius: 12px; font-size: 12px; font-weight: bold; margin-left: 5px; animation: blink 1.5s infinite; }
         @keyframes blink { 0% { opacity: 1; } 50% { opacity: 0.5; } 100% { opacity: 1; } }
         
@@ -158,7 +170,7 @@
     
         .welcome-screen { display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100vh; background-color: rgba(244, 247, 246, 0.95); text-align: center; padding: 20px; box-sizing: border-box; }
         .welcome-screen h1 { font-size: 2.5em; color: #2c3e50; margin-bottom: 10px; }
-        .welcome-screen p { font-size: 1.2em; color: #7f8c8d; margin-bottom: 30px; max-width: 600px; line-height: 1.5; }
+        .welcome-screen p { font-size: 1.2em; color: #555; margin-bottom: 30px; max-width: 600px; line-height: 1.5; }
         .btn-enter { background-color: #2980b9; font-size: 1.2em; padding: 15px 40px; width: auto; border-radius: 30px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); margin-top: 0; }
     </style>
 </head>
@@ -231,6 +243,17 @@
         </div>
     </div>
 
+    <!-- Modal Thùng Rác -->
+    <div id="trashModalOverlay" class="modal-overlay">
+        <div class="money-modal">
+            <button class="close-modal-btn" onclick="toggleTrashModal()">✕</button>
+            <h3 style="margin-top: 0; color: #7f8c8d; text-align: center;">🗑️ Thùng Rác (Trận Đấu Đã Xóa)</h3>
+            <div id="trashList" style="margin-top: 15px;">
+                <!-- Danh sách trận trong thùng rác -->
+            </div>
+        </div>
+    </div>
+
     <div class="form-section">
         <h3>Cập Nhật Kết Quả Trận Đấu</h3>
         <div style="margin-bottom: 15px; text-align: center;">
@@ -278,7 +301,7 @@
             </tbody>
             <tfoot>
                 <tr>
-                    <td colspan="6" style="padding: 10px; background-color: #f8f9fa;">
+                    <td colspan="6" style="padding: 10px; background-color: rgba(248,249,250,0.9);">
                         <button class="btn-inline btn-add" style="width: 100%; margin: 0; font-size: 15px;" onclick="addPlayer()">➕ Thêm người chơi mới</button>
                     </td>
                 </tr>
@@ -286,7 +309,10 @@
         </table>
     </div>
 
-    <h2>Lịch Sử Trận Đấu</h2>
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 25px;">
+        <h2 style="margin: 0;">Lịch Sử Trận Đấu</h2>
+        <button class="btn-sm btn-trash-main" onclick="toggleTrashModal()">🗑️ Mở Thùng Rác</button>
+    </div>
     <div id="historyList"></div>
 </div>
 
@@ -311,6 +337,7 @@
     let playerAvatars = {}; 
     let playerStreaks = {}; 
     let matches = [];
+    let trashMatches = []; // Danh sách thùng rác
     let thuChiData = {}; 
     let players = {};
 
@@ -322,29 +349,12 @@
     dbRef.on('value', (snapshot) => {
         const data = snapshot.val();
         if (data) {
-            if (data.players && data.players.length > 0) {
-                playerNames = data.players;
-            }
-            if (data.playerAvatars) {
-                playerAvatars = data.playerAvatars;
-            } else {
-                playerAvatars = {};
-            }
-            if (data.playerStreaks) {
-                playerStreaks = data.playerStreaks;
-            } else {
-                playerStreaks = {};
-            }
-            if (data.matches) {
-                matches = data.matches;
-            } else {
-                matches = [];
-            }
-            if (data.thuChiData) {
-                thuChiData = data.thuChiData;
-            } else {
-                thuChiData = {};
-            }
+            if (data.players && data.players.length > 0) playerNames = data.players;
+            if (data.playerAvatars) playerAvatars = data.playerAvatars; else playerAvatars = {};
+            if (data.playerStreaks) playerStreaks = data.playerStreaks; else playerStreaks = {};
+            if (data.matches) matches = data.matches; else matches = [];
+            if (data.trashMatches) trashMatches = data.trashMatches; else trashMatches = [];
+            if (data.thuChiData) thuChiData = data.thuChiData; else thuChiData = {};
         } else {
             saveData();
         }
@@ -359,6 +369,7 @@
             playerAvatars: playerAvatars,
             playerStreaks: playerStreaks,
             matches: matches,
+            trashMatches: trashMatches,
             thuChiData: thuChiData
         }).catch((error) => {
             alert("Lỗi lưu dữ liệu: " + error.message);
@@ -388,7 +399,6 @@
         let todayStr = new Date().toISOString().split('T')[0];
         let updated = false;
 
-        // Chỉ theo dõi streak cho Top 3 (Vàng, Bạc, Đồng)
         sortedPlayers.forEach((p, index) => {
             let currentRank = index + 1;
             let pName = p.name;
@@ -399,7 +409,6 @@
                     updated = true;
                 }
             } else {
-                // Xóa streak nếu rớt khỏi Top 3
                 if (playerStreaks[pName]) {
                     delete playerStreaks[pName];
                     updated = true;
@@ -476,6 +485,12 @@
                 if (m.t2p1 === oldName) m.t2p1 = trimmedName; 
                 if (m.t2p2 === oldName) m.t2p2 = trimmedName;
             });
+            trashMatches.forEach(m => {
+                if (m.t1p1 === oldName) m.t1p1 = trimmedName; 
+                if (m.t1p2 === oldName) m.t1p2 = trimmedName;
+                if (m.t2p1 === oldName) m.t2p1 = trimmedName; 
+                if (m.t2p2 === oldName) m.t2p2 = trimmedName;
+            });
             saveData();
         }
     }
@@ -506,9 +521,33 @@
         }
     }
 
+    // Chuyển trận đấu vào thùng rác thay vì xóa vĩnh viễn ngay
     function deleteMatch(matchId) {
-        if (confirm("Xóa trận đấu này khỏi lịch sử?")) {
-            matches = matches.filter(m => m.id !== matchId); saveData(); 
+        let matchIndex = matches.findIndex(m => m.id === matchId);
+        if (matchIndex === -1) return;
+        if (confirm("Chuyển trận đấu này vào Thùng rác?")) {
+            let removedMatch = matches.splice(matchIndex, 1)[0];
+            trashMatches.push(removedMatch);
+            saveData(); 
+        }
+    }
+
+    // Khôi phục trận đấu từ thùng rác
+    function restoreMatch(matchId) {
+        let index = trashMatches.findIndex(m => m.id === matchId);
+        if (index === -1) return;
+        let restored = trashMatches.splice(index, 1)[0];
+        matches.push(restored);
+        saveData();
+        toggleTrashModal();
+    }
+
+    // Xóa vĩnh viễn khỏi thùng rác
+    function permanentDeleteMatch(matchId) {
+        if (confirm("Hành động này sẽ xóa vĩnh viễn trận đấu và không thể khôi phục. Bạn có chắc chắn?")) {
+            trashMatches = trashMatches.filter(m => m.id !== matchId);
+            saveData();
+            toggleTrashModal();
         }
     }
 
@@ -526,6 +565,35 @@
             document.getElementById('moneyDate').valueAsDate = new Date();
             loadMoneyDataForSelectedDate();
         }
+    }
+
+    function toggleTrashModal() {
+        let modalOverlay = document.getElementById('trashModalOverlay');
+        let isOpening = modalOverlay.style.display !== "flex";
+        modalOverlay.style.display = isOpening ? "flex" : "none";
+        
+        if (isOpening) {
+            renderTrashList();
+        }
+    }
+
+    function renderTrashList() {
+        const trashListEl = document.getElementById('trashList');
+        if (trashMatches.length === 0) {
+            trashListEl.innerHTML = `<p style="text-align: center; color: #7f8c8d;">Thùng rác trống.</p>`;
+            return;
+        }
+
+        trashListEl.innerHTML = trashMatches.map(m => `
+            <div class="match-item" style="border-left-color: #e74c3c;">
+                <div><span style="color:#2980b9;font-weight:bold;">${m.t1p1} & ${m.t1p2}</span> <span style="margin:0 10px;font-size:1.2em;"><strong>${m.score1} - ${m.score2}</strong></span> <span style="color:#e67e22;font-weight:bold;">${m.t2p1} & ${m.t2p2}</span></div>
+                <div style="font-size: 0.85em; color: #666; margin-top: 4px;">Ngày đấu: ${m.date}</div>
+                <div class="match-actions">
+                    <button class="btn-sm" style="background-color: #27ae60;" onclick="restoreMatch('${m.id}')">🔄 Khôi phục</button>
+                    <button class="btn-sm btn-delete-match" onclick="permanentDeleteMatch('${m.id}')">❌ Xóa vĩnh viễn</button>
+                </div>
+            </div>
+        `).join("");
     }
 
     function loadMoneyDataForSelectedDate() {
@@ -605,7 +673,6 @@
             else if (index === 1) { rankClass = "rank-2"; rankDisplay = "🥈"; }
             else if (index === 2) { rankClass = "rank-3"; rankDisplay = "🥉"; }
 
-            // Chỉ hiển thị số mũ streak cho Top 3 (Vàng, Bạc, Đồng)
             let streakHTML = "";
             if (index < 3 && playerStreaks[p.name] && playerStreaks[p.name].rank === (index + 1)) {
                 let streakDays = getStreakDays(playerStreaks[p.name].startDate);
@@ -649,13 +716,13 @@
                     <div><span style="color:#2980b9;font-weight:bold;">${m.t1p1} & ${m.t1p2}</span> <span style="margin:0 10px;font-size:1.2em;"><strong>${m.score1} - ${m.score2}</strong></span> <span style="color:#e67e22;font-weight:bold;">${m.t2p1} & ${m.t2p2}</span></div>
                     <div class="match-actions">
                         <button class="btn-sm btn-edit" onclick="editMatch('${m.id}')">✏️ Sửa</button>
-                        <button class="btn-sm btn-delete-match" onclick="deleteMatch('${m.id}')">❌ Xóa</button>
+                        <button class="btn-sm btn-delete-match" onclick="deleteMatch('${m.id}')">🗑️ Xóa</button>
                     </div>
                 </li>
             `).join("");
 
             historyList.innerHTML += `
-                <div style="margin-bottom: 15px; border: 1px solid #dcdde1; border-radius: 6px; overflow: hidden; background: #fff;">
+                <div style="margin-bottom: 15px; border: 1px solid #dcdde1; border-radius: 6px; overflow: hidden; background: rgba(255,255,255,0.95);">
                     <div onclick="toggleDateGroup('${dateGroupId}')" style="background: #34495e; color: white; padding: 10px 15px; cursor: pointer; display: flex; justify-content: space-between; align-items: center; font-weight: bold;">
                         <span>📅 Ngày: ${formattedDate} (${dayMatches.length} trận)</span>
                         <span style="font-size: 0.9em; background: rgba(255,255,255,0.2); padding: 3px 8px; border-radius: 4px;">▼ Xem thêm</span>
