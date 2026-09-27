@@ -1,3 +1,115 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Nhóm Cầu Lông</title>
+    
+    <!-- Thư viện kết nối Firebase (Bắt buộc) -->
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
+
+    <style>
+        body { font-family: Arial, sans-serif; background-color: #f4f7f6; color: #333; margin: 0; padding: 10px; }
+        .container { max-width: 800px; margin: 0 auto; background: #fff; padding: 20px; border-radius: 8px; box-shadow: 0 4px 8px rgba(0,0,0,0.1); }
+        h1, h2, h3 { color: #2c3e50; text-align: center; }
+        .form-section { background: #eaf2f8; padding: 15px; border-radius: 6px; margin-bottom: 20px; }
+        .team-group { background: #fff; padding: 10px; border-radius: 4px; border: 1px solid #dcdde1; margin-bottom: 10px; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 10px; }
+        .player-selects { display: flex; gap: 5px; align-items: center; flex: 1; }
+        .score-input { width: 80px; padding: 8px; border: 2px solid #3498db; border-radius: 4px; font-weight: bold; text-align: center; }
+        .vs-text { text-align: center; font-weight: bold; color: #e74c3c; margin: 5px 0; }
+        select, input[type="date"] { padding: 8px; border: 1px solid #ccc; border-radius: 4px; }
+        button { background-color: #27ae60; color: white; padding: 12px 15px; border: none; border-radius: 4px; cursor: pointer; font-weight: bold; width: 100%; font-size: 16px; margin-top: 10px; }
+        button:hover { background-color: #219150; }
+        .btn-inline { width: auto; padding: 8px 12px; font-size: 14px; margin: 5px; display: inline-block; }
+        .btn-add { background-color: #3498db; }
+        .btn-sm { width: auto; padding: 5px 10px; font-size: 12px; margin-top: 5px; margin-right: 5px; display: inline-block; }
+        .btn-edit { background-color: #f39c12; }
+        .btn-delete-match { background-color: #c0392b; }
+        
+        table { width: 100%; border-collapse: collapse; margin-top: 10px; }
+        th, td { border: 1px solid #ddd; padding: 10px; text-align: center; }
+        th { background-color: #34495e; color: white; }
+        .match-history { list-style-type: none; padding: 0; }
+        .match-item { background: #ecf0f1; margin-bottom: 8px; padding: 12px; border-radius: 4px; border-left: 5px solid #3498db; line-height: 1.5; }
+        .match-actions { margin-top: 8px; }
+        .editable-name { color: #2980b9; cursor: pointer; font-weight: bold; text-decoration: underline dotted; }
+        .editable-name:hover { color: #e67e22; }
+        .note { text-align: center; font-size: 0.9em; color: #7f8c8d; margin-top: -10px; margin-bottom: 15px; }
+        .live-badge { display: inline-block; background-color: #e74c3c; color: white; padding: 3px 8px; border-radius: 12px; font-size: 12px; font-weight: bold; margin-left: 10px; animation: blink 1.5s infinite; }
+        @keyframes blink { 0% { opacity: 1; } 50% { opacity: 0.5; } 100% { opacity: 1; } }
+        
+        @media (max-width: 600px) {
+            .player-selects { flex-direction: column; align-items: stretch; }
+            select { margin-bottom: 5px; }
+        }
+    
+        .welcome-screen { display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100vh; background-color: #f4f7f6; text-align: center; padding: 20px; box-sizing: border-box; }
+        .welcome-screen h1 { font-size: 2.5em; color: #2c3e50; margin-bottom: 10px; }
+        .welcome-screen p { font-size: 1.2em; color: #7f8c8d; margin-bottom: 30px; max-width: 600px; line-height: 1.5; }
+        .btn-enter { background-color: #2980b9; font-size: 1.2em; padding: 15px 40px; width: auto; border-radius: 30px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); margin-top: 0; }
+    </style>
+</head>
+<body>
+
+<div id="welcomeScreen" class="welcome-screen">
+    <h1>🏸 Welcome to Pick Thủ Thanh Trì 🏸</h1>
+    <p>Ứng dụng giúp bạn ghi lại tỷ số, tự động xếp hạng. Dữ liệu được đồng bộ trực tiếp cho tất cả mọi người!</p>
+    <button class="btn-enter" onclick="enterApp()">Enter</button>
+</div>
+
+<div class="container" id="mainApp" style="display: none;">
+    <h1>🏆 Bảng Điểm Cầu Lông <span class="live-badge">🔴 LIVE</span></h1>
+    
+    <div class="form-section">
+        <h3>Cập Nhật Kết Quả Trận Đấu</h3>
+        <div style="margin-bottom: 15px; text-align: center;">
+            <label><strong>Ngày đấu:</strong></label>
+            <input type="date" id="matchDate">
+        </div>
+        
+        <div class="team-group">
+            <div class="player-selects">
+                <span style="font-weight:bold; color:#2980b9;">Đội 1:</span>
+                <select id="t1p1"></select> <select id="t1p2"></select>
+            </div>
+            <input type="number" id="score1" class="score-input" placeholder="Điểm Đ1" min="0">
+        </div>
+        
+        <div class="vs-text">⚡ ĐẤU VỚI ⚡</div>
+        
+        <div class="team-group">
+            <div class="player-selects">
+                <span style="font-weight:bold; color:#e67e22;">Đội 2:</span>
+                <select id="t2p1"></select> <select id="t2p2"></select>
+            </div>
+            <input type="number" id="score2" class="score-input" placeholder="Điểm Đ2" min="0">
+        </div>
+
+        <button onclick="addMatch()">Lưu Kết Quả Trận Đấu</button>
+    </div>
+
+    <h2>Bảng Xếp Hạng Cá Nhân</h2>
+    <div class="note">(💡 Nhấn vào tên người chơi trong bảng để đổi tên. Sẽ đồng bộ cho tất cả mọi người)</div>
+    <div style="overflow-x: auto;">
+        <table>
+            <thead>
+                <tr>
+                    <th>Hạng</th>
+                    <th>Tên</th>
+                    <th>Trận</th>
+                    <th>Thắng</th>
+                    <th>Thua</th>
+                    <th>Hệ số</th>
+                </tr>
+            </thead>
+            <tbody id="leaderboard"></tbody>
+        </table>
+    </div>
+
+    <h2>Lịch Sử Trận Đấu</h2>
+    <ul class="match-history" id="historyList"></ul>
+</div>
 <script>
     // Cấu hình Firebase
     const firebaseConfig = {
