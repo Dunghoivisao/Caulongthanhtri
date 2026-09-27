@@ -118,11 +118,11 @@
         }
         .editable-name:hover { color: #e67e22; text-decoration: underline; }
         
-        /* Hiển thị số ngày giữ hạng dạng mũ ở trên - Đã chuyển sang màu xám nhạt */
+        /* Hiển thị số ngày giữ hạng dạng mũ ở trên - Chỉ dành cho Top 3, màu xám nhạt */
         .streak-sup {
             font-size: 0.7em;
             vertical-align: super;
-            color: #95a5a6; /* Màu xám nhạt */
+            color: #95a5a6; 
             font-weight: bold;
             margin-left: 2px;
         }
@@ -368,13 +368,22 @@
         let todayStr = new Date().toISOString().split('T')[0];
         let updated = false;
 
+        // Chỉ theo dõi streak cho Top 3
         sortedPlayers.forEach((p, index) => {
             let currentRank = index + 1;
             let pName = p.name;
 
-            if (!playerStreaks[pName] || playerStreaks[pName].rank !== currentRank) {
-                playerStreaks[pName] = { rank: currentRank, startDate: todayStr };
-                updated = true;
+            if (currentRank <= 3) {
+                if (!playerStreaks[pName] || playerStreaks[pName].rank !== currentRank) {
+                    playerStreaks[pName] = { rank: currentRank, startDate: todayStr };
+                    updated = true;
+                }
+            } else {
+                // Xóa streak nếu rớt khỏi Top 3
+                if (playerStreaks[pName]) {
+                    delete playerStreaks[pName];
+                    updated = true;
+                }
             }
         });
 
@@ -576,9 +585,11 @@
             else if (index === 1) { rankClass = "rank-2"; rankDisplay = "🥈"; }
             else if (index === 2) { rankClass = "rank-3"; rankDisplay = "🥉"; }
 
-            let streakDays = 1;
-            if (playerStreaks[p.name] && playerStreaks[p.name].rank === (index + 1)) {
-                streakDays = getStreakDays(playerStreaks[p.name].startDate);
+            // Chỉ hiển thị số mũ streak nếu thuộc Top 3 (index 0, 1, 2)
+            let streakHTML = "";
+            if (index < 3 && playerStreaks[p.name] && playerStreaks[p.name].rank === (index + 1)) {
+                let streakDays = getStreakDays(playerStreaks[p.name].startDate);
+                streakHTML = `<span class="streak-sup">${streakDays}</span>`;
             }
 
             tbody.innerHTML += `<tr class="${rankClass}">
@@ -587,7 +598,7 @@
                     <div class="member-cell">
                         <img src="${avatarUrl}" class="avatar-img" title="Bấm để đổi ảnh" onclick="changeAvatar('${p.name}', event)" onerror="this.src='https://cdn-icons-png.flaticon.com/512/149/149071.png'">
                         <div class="member-info">
-                            <span class="editable-name" title="Bấm để đổi tên" onclick="editPlayerName('${p.name}')">${p.name}<span class="streak-sup">${streakDays}</span></span>
+                            <span class="editable-name" title="Bấm để đổi tên" onclick="editPlayerName('${p.name}')">${p.name}${streakHTML}</span>
                         </div>
                     </div>
                 </td>
