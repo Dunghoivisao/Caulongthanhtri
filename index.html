@@ -90,7 +90,6 @@
             display: inline-block;
         }
         .btn-add { background-color: #3498db; }
-        .btn-remove { background-color: #e74c3c; }
         .btn-sm {
             width: auto;
             padding: 5px 10px;
@@ -127,7 +126,6 @@
             border-radius: 4px;
             border-left: 5px solid #3498db;
             line-height: 1.5;
-            position: relative;
         }
         .match-actions {
             margin-top: 8px;
@@ -263,9 +261,15 @@
         document.getElementById('mainApp').style.display = 'block';
     }
 
-    let playerNames = ["Người chơi 1", "Người chơi 2", "Người chơi 3"];
-    let matches = [];
+    // Tải dữ liệu đã lưu từ bộ nhớ trình duyệt (nếu có)
+    let playerNames = JSON.parse(localStorage.getItem('pick_playerNames')) || ["Người chơi 1", "Người chơi 2", "Người chơi 3", "Người chơi 4"];
+    let matches = JSON.parse(localStorage.getItem('pick_matches')) || [];
     let players = {};
+
+    function saveData() {
+        localStorage.setItem('pick_playerNames', JSON.stringify(playerNames));
+        localStorage.setItem('pick_matches', JSON.stringify(matches));
+    }
 
     function calculateStats() {
         players = {};
@@ -303,6 +307,7 @@
                     alert("Tên này đã tồn tại!");
                 } else {
                     playerNames.push(newName);
+                    saveData();
                     updateUI();
                 }
             }
@@ -326,6 +331,7 @@
                 if (m.t2p1 === oldName) m.t2p1 = newName;
                 if (m.t2p2 === oldName) m.t2p2 = newName;
             });
+            saveData();
             updateUI();
         }
     }
@@ -352,7 +358,8 @@
 
         const matchId = Date.now().toString();
         matches.push({ id: matchId, date, t1p1, t1p2, t2p1, t2p2, score1, score2 });
-
+        
+        saveData();
         document.getElementById('score1').value = "";
         document.getElementById('score2').value = "";
         updateUI();
@@ -374,6 +381,7 @@
         if (!isNaN(newScore1) && !isNaN(newScore2)) {
             matches[matchIndex].score1 = newScore1;
             matches[matchIndex].score2 = newScore2;
+            saveData();
             updateUI();
             alert("Đã sửa điểm thành công!");
         } else {
@@ -384,6 +392,7 @@
     function deleteMatch(matchId) {
         if (confirm("CẢNH BÁO: Bạn có chắc chắn muốn XÓA HOÀN TOÀN trận đấu này khỏi lịch sử không?")) {
             matches = matches.filter(m => m.id !== matchId);
+            saveData();
             updateUI();
             alert("Đã xóa trận đấu!");
         }
