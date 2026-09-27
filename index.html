@@ -60,15 +60,6 @@
 <div class="container" id="mainApp" style="display: none;">
     <h1>🏆 Bảng Điểm Cầu Lông <span class="live-badge">🔴 LIVE</span></h1>
     
-    <!-- Phần Quản Lý Thành Viên có nút Thêm rõ ràng -->
-    <div class="form-section">
-        <h3>Quản Lý Người Chơi</h3>
-        <div class="note">(💡 Bấm nút bên dưới để thêm người chơi mới, hoặc bấm vào tên trong bảng xếp hạng để sửa tên)</div>
-        <div style="text-align: center;">
-            <button class="btn-inline btn-add" onclick="addPlayer()">➕ Thêm Người Chơi Mới</button>
-        </div>
-    </div>
-
     <div class="form-section">
         <h3>Cập Nhật Kết Quả Trận Đấu</h3>
         <div style="margin-bottom: 15px; text-align: center;">
@@ -98,6 +89,7 @@
     </div>
 
     <h2>Bảng Xếp Hạng Cá Nhân</h2>
+    <div class="note">(💡 Nhấn vào tên trong bảng để sửa tên)</div>
     <div style="overflow-x: auto;">
         <table>
             <thead>
@@ -110,7 +102,16 @@
                     <th>Hệ số</th>
                 </tr>
             </thead>
-            <tbody id="leaderboard"></tbody>
+            <tbody id="leaderboard">
+                <!-- Danh sách người chơi sẽ được tạo tự động tại đây -->
+            </tbody>
+            <tfoot>
+                <tr>
+                    <td colspan="6" style="padding: 10px; background-color: #f8f9fa;">
+                        <button class="btn-inline btn-add" style="width: 100%; margin: 0; font-size: 15px;" onclick="addPlayer()">➕ Thêm người chơi</button>
+                    </td>
+                </tr>
+            </tfoot>
         </table>
     </div>
 
@@ -140,8 +141,8 @@
     const database = firebase.database();
     const dbRef = database.ref('pickthanhchi_data');
 
-    // Biến toàn cục khởi tạo sẵn 4 người chơi mẫu
-    let playerNames = ["Người chơi 1", "Người chơi 2", "Người chơi 3", "Người chơi 4"];
+    // Mặc định hiển thị sẵn 3 người chơi
+    let playerNames = ["Người chơi 1", "Người chơi 2", "Người chơi 3"];
     let matches = [];
     let players = {};
 
@@ -161,7 +162,7 @@
                 matches = data.matches;
             }
         } else {
-            // Nếu database trên Firebase đang trống, tự động đẩy bộ dữ liệu mẫu lên luôn
+            // Đẩy bộ 3 người chơi mặc định lên Firebase nếu database trống
             saveData();
         }
         updateUI(); 
