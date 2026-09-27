@@ -215,6 +215,20 @@
         });
     }
 
+    // Hàm sắp xếp chung theo tiêu chí mới: Số trận thắng (giảm dần) -> Số trận thua (tăng dần, ít thua hơn xếp trên) -> Hệ số điểm (giảm dần) -> Tổng trận (tăng dần)
+    function sortPlayersCriteria(a, b) {
+        if (b.wins !== a.wins) {
+            return b.wins - a.wins; // Thắng nhiều hơn xếp trên
+        }
+        if (a.losses !== b.losses) {
+            return a.losses - b.losses; // Ít thua hơn xếp trên
+        }
+        if (b.pointsDiff !== a.pointsDiff) {
+            return b.pointsDiff - a.pointsDiff; // Hệ số điểm cao hơn xếp trên
+        }
+        return a.matches - b.matches; // Đánh ít trận hơn mà hiệu quả tương đương thì xếp trên
+    }
+
     function calculateAllStatsAndStreaks() {
         players = {};
         playerNames.forEach(name => { 
@@ -260,10 +274,7 @@
                 });
             });
 
-            let dayPlayersArray = Object.values(players).filter(p => p.matches > 0).sort((a, b) => {
-                if (b.wins !== a.wins) return b.wins - a.wins;
-                return b.pointsDiff - a.pointsDiff;
-            });
+            let dayPlayersArray = Object.values(players).filter(p => p.matches > 0).sort(sortPlayersCriteria);
 
             let newRanks = {};
             dayPlayersArray.forEach((p, idx) => {
@@ -424,7 +435,7 @@
         
         if (!document.getElementById('matchDate').value) document.getElementById('matchDate').valueAsDate = new Date();
 
-        let playersArray = Object.values(players).sort((a, b) => b.wins !== a.wins ? b.wins - a.wins : b.pointsDiff - a.pointsDiff);
+        let playersArray = Object.values(players).sort(sortPlayersCriteria);
         const tbody = document.getElementById('leaderboard'); 
         tbody.innerHTML = ""; 
         
