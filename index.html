@@ -46,7 +46,24 @@
             transition: background 0.3s;
         }
         
-        .header-container { text-align: center; margin-bottom: 20px; position: relative; }
+        /* Cấu trúc tiêu đề mới không bị che chữ */
+        .header-container { 
+            margin-bottom: 20px; 
+        }
+        .header-top-row {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 10px;
+        }
+        .header-spacer {
+            width: 115px;
+            flex-shrink: 0;
+        }
+        .header-title-container {
+            flex: 1;
+            text-align: center;
+        }
         h1 { color: #2c3e50; margin: 10px 0; font-size: 1.8em; transition: color 0.3s; }
         h2, h3 { color: #2c3e50; transition: color 0.3s; }
         
@@ -79,12 +96,14 @@
         body.dark-mode .money-modal [style*="background: #eaf2f8"] { background: #2c3e50 !important; border-color: #555 !important; }
         body.dark-mode .money-modal [style*="background: #e8f8f5"] { background: #1b4f42 !important; border-color: #27ae60 !important; }
 
-        /* Nút chế độ tối ở đầu trang (không bị trôi theo màn hình) */
+        /* Nút chế độ tối ở góc phải phần tiêu đề */
         #themeToggleBtn {
-            position: absolute; top: 0; right: 0; z-index: 10;
+            width: 115px;
+            flex-shrink: 0;
             background: #34495e; color: white; border: none; padding: 6px 12px;
             border-radius: 6px; cursor: pointer; font-size: 13px; box-shadow: 0 2px 5px rgba(0,0,0,0.2);
             transition: background 0.3s;
+            text-align: center;
         }
         #themeToggleBtn:hover { background: #2c3e50; }
         body.dark-mode #themeToggleBtn { background: #f1c40f; color: #333; }
@@ -193,9 +212,10 @@
             margin-left: 2px;
         }
         .momentum-arrow {
-            font-size: 0.9em;
-            margin-left: 8px; /* Cho mũi tên cách ra một xíu cho thoáng */
+            font-size: 1.1em;
+            margin-left: 8px;
             display: inline-block;
+            font-weight: bold;
         }
         .note { text-align: center; font-size: 0.9em; color: #555; margin-top: -10px; margin-bottom: 15px; transition: color 0.3s; }
         .live-badge { display: inline-block; background-color: #e74c3c; color: white; padding: 3px 8px; border-radius: 12px; font-size: 12px; font-weight: bold; margin-left: 5px; animation: blink 1.5s infinite; }
@@ -204,6 +224,9 @@
         @media (max-width: 600px) {
             .player-selects { flex-direction: column; align-items: stretch; }
             select { margin-bottom: 5px; }
+            .header-top-row { flex-direction: column; }
+            .header-spacer { display: none; }
+            #themeToggleBtn { width: 100%; margin-top: 5px; }
         }
         .welcome-screen { display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100vh; background-color: rgba(244, 247, 246, 0.95); text-align: center; padding: 20px; box-sizing: border-box; transition: background 0.3s; }
         .welcome-screen h1 { font-size: 2.5em; color: #2c3e50; margin-bottom: 10px; }
@@ -221,11 +244,18 @@
 
 <div class="container" id="mainApp" style="display: none;">
     <div class="header-container">
-        <!-- Nút Chế độ Tối/Sáng đặt ở góc trên bên phải trang web, cuộn theo trang -->
-        <button id="themeToggleBtn" onclick="toggleTheme()">🌙 Chế độ Tối</button>
+        <!-- Hàng trên cùng của tiêu đề: Khoảng đệm trống, Tên giữa, và Nút Chế độ Tối/Sáng bên phải -->
+        <div class="header-top-row">
+            <div class="header-spacer"></div>
+            <div class="header-title-container">
+                <h1>🏆 Bảng Điểm Cầu Lông <span class="live-badge">🔴 LIVE</span></h1>
+            </div>
+            <button id="themeToggleBtn" onclick="toggleTheme()">🌙 Chế độ Tối</button>
+        </div>
         
-        <h1>🏆 Bảng Điểm Cầu Lông <span class="live-badge">🔴 LIVE</span></h1>
-        <button class="btn-thu-chi-main" onclick="toggleMoneyModal()">💰 Mở Bảng Quản Lý Thu Chi</button>
+        <div style="text-align: center; margin-top: 15px;">
+            <button class="btn-thu-chi-main" onclick="toggleMoneyModal()">💰 Mở Bảng Quản Lý Thu Chi</button>
+        </div>
     </div>
 
     <!-- Modal Thu Chi -->
@@ -726,12 +756,12 @@
                 streakHTML = `<span class="streak-sup">${streakDays}</span>`;
             }
             
-            // Mũi tên phong độ (cách ra một xíu, giữ nguyên dạng mũi tên)
+            // Mũi tên phong độ dày dặn hơn (dùng ký hiệu ⬆ ⬇, đặt phía sau tên, không phải hình tam giác)
             let momentumHTML = "";
             if (p.lastMatchResult === 'win') {
-                momentumHTML = `<span class="momentum-arrow" style="color: #27ae60;" title="Vừa thắng trận gần nhất">↑</span>`;
+                momentumHTML = `<span class="momentum-arrow" style="color: #27ae60;" title="Vừa thắng trận gần nhất">⬆</span>`;
             } else if (p.lastMatchResult === 'loss') {
-                momentumHTML = `<span class="momentum-arrow" style="color: #e74c3c;" title="Vừa thua trận gần nhất">↓</span>`;
+                momentumHTML = `<span class="momentum-arrow" style="color: #e74c3c;" title="Vừa thua trận gần nhất">⬇</span>`;
             }
             tbody.innerHTML += `<tr class="${rankClass}">
                 <td>${rankDisplay}</td>
