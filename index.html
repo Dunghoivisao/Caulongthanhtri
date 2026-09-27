@@ -118,11 +118,11 @@
         }
         .editable-name:hover { color: #e67e22; text-decoration: underline; }
         
-        /* Hiển thị số ngày giữ hạng dạng mũ ở trên */
+        /* Hiển thị số ngày giữ hạng dạng mũ ở trên - Đã chuyển sang màu xám nhạt */
         .streak-sup {
             font-size: 0.7em;
             vertical-align: super;
-            color: #e74c3c;
+            color: #95a5a6; /* Màu xám nhạt */
             font-weight: bold;
             margin-left: 2px;
         }
@@ -170,12 +170,12 @@
 
             <div style="display: flex; flex-direction: column; gap: 10px;">
                 <div style="display: flex; justify-content: space-between; align-items: center; background: #fff; padding: 8px; border-radius: 4px; border: 1px solid #ddd;">
-                    <label>📦 Tiền 1 ống cầu:</label>
+                    <label>📦 1 ống cầu:</label>
                     <input type="number" id="boxShuttle" value="330" style="width: 100px; text-align: center; font-weight: bold;" oninput="calculateThuChi()">
                 </div>
                 
                 <div style="display: flex; justify-content: space-between; align-items: center; background: #fff; padding: 8px; border-radius: 4px; border: 1px solid #ddd;">
-                    <label>🏟️ Tiền sân (nghìn đ):</label>
+                    <label>🏟️ Sân:</label>
                     <input type="number" id="courtFee" placeholder="VD: 90" style="width: 100px; text-align: center; font-weight: bold;" oninput="calculateThuChi()">
                 </div>
 
@@ -185,7 +185,7 @@
                 </div>
 
                 <div style="display: flex; justify-content: space-between; align-items: center; background: #fff; padding: 8px; border-radius: 4px; border: 1px solid #ddd;">
-                    <label>🥤 Tiền nước (nghìn đ):</label>
+                    <label>🥤 Nước:</label>
                     <input type="number" id="waterFee" style="width: 100px; text-align: center; font-weight: bold;" oninput="calculateThuChi()">
                 </div>
             </div>
@@ -289,7 +289,7 @@
 
     let playerNames = ["Người chơi 1", "Người chơi 2", "Người chơi 3"];
     let playerAvatars = {}; 
-    let playerStreaks = {}; // Lưu trữ dữ liệu streak: { playerName: { rank: X, startDate: "YYYY-MM-DD" } }
+    let playerStreaks = {}; 
     let matches = [];
     let thuChiData = {}; 
     let players = {};
@@ -373,7 +373,6 @@
             let pName = p.name;
 
             if (!playerStreaks[pName] || playerStreaks[pName].rank !== currentRank) {
-                // Đổi thứ hạng hoặc lần đầu ghi nhận -> reset lại mốc ngày bắt đầu từ hôm nay
                 playerStreaks[pName] = { rank: currentRank, startDate: todayStr };
                 updated = true;
             }
@@ -577,7 +576,6 @@
             else if (index === 1) { rankClass = "rank-2"; rankDisplay = "🥈"; }
             else if (index === 2) { rankClass = "rank-3"; rankDisplay = "🥉"; }
 
-            // Lấy số ngày giữ streak
             let streakDays = 1;
             if (playerStreaks[p.name] && playerStreaks[p.name].rank === (index + 1)) {
                 streakDays = getStreakDays(playerStreaks[p.name].startDate);
