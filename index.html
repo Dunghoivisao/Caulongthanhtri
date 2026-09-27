@@ -93,18 +93,30 @@
     <div class="note">(💡 Nhấn vào tên người chơi trong bảng để đổi tên. Sẽ đồng bộ cho tất cả mọi người)</div>
     <div style="overflow-x: auto;">
         <table>
-            <thead>
-                <tr>
-                    <th>Hạng</th>
-                    <th>Tên</th>
-                    <th>Trận</th>
-                    <th>Thắng</th>
-                    <th>Thua</th>
-                    <th>Hệ số</th>
-                </tr>
-            </thead>
-            <tbody id="leaderboard"></tbody>
+    <thead>
+        <tr>
+            <th>Hạng</th>
+            <th>Tên</th>
+            <th>Trận</th>
+            <th>Thắng</th>
+            <th>Thua</th>
+            <th>Hệ số</th>
+        </tr>
+    </thead>
+    <tbody id="leaderboard">
+        <!-- Javascript sẽ tự động chèn 3 người chơi vào đây -->
+    </tbody>
+    
+    <!-- Phần chân bảng cố định chứa nút Thêm người chơi -->
+    <tfoot>
+        <tr>
+            <td colspan="6" style="padding: 10px; background-color: #f8f9fa;">
+                <button class="btn-inline btn-add" style="width: 100%; margin: 0; font-size: 15px;" onclick="addPlayer()">➕ Thêm người chơi</button>
+            </td>
+        </tr>
+    </tfoot>
         </table>
+        
     </div>
 
     <h2>Lịch Sử Trận Đấu</h2>
