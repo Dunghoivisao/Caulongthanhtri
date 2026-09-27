@@ -41,8 +41,8 @@
         .editable-name { color: #2980b9; cursor: pointer; font-weight: bold; text-decoration: underline dotted; text-align: left; }
         .editable-name:hover { color: #e67e22; }
 
-        /* Huy hiệu số ngày liên tục (chỉ hiện con số dạng tròn/bo góc ngay cạnh tên) */
-        .streak-badge { background-color: #e67e22; color: white; padding: 2px 8px; border-radius: 12px; font-size: 0.8em; font-weight: bold; display: inline-flex; align-items: center; justify-content: center; box-shadow: 0 2px 4px rgba(0,0,0,0.1); margin-left: 6px; }
+        /* Số ngày liên tục hiển thị nhỏ mờ ở phía trên tên */
+        .streak-badge-sub { font-size: 0.72em; color: #95a5a6; font-weight: normal; display: block; line-height: 1.1; margin-bottom: 2px; text-align: left; }
 
         /* Màu sắc cho Top 3 (Vàng, Bạc, Đồng) */
         .rank-1 { background-color: #fff9c4 !important; } 
@@ -68,7 +68,7 @@
 
 <div id="welcomeScreen" class="welcome-screen">
     <h1>🏸 Welcome to Pick Thủ Thanh Trì 🏸</h1>
-    <p>Ứng dụng giúp bạn ghi lại tỷ số, tự động xếp hạng và hiển thị chuỗi ngày liên tục cho Top 1, 2, 3!</p>
+    <p>Ứng dụng giúp bạn ghi lại tỷ số, tự động xếp hạng và hiển thị chuỗi ngày liên tục tinh tế cho Top 1, 2, 3!</p>
     <button class="btn-enter" onclick="enterApp()">Enter</button>
 </div>
 
@@ -104,7 +104,7 @@
     </div>
 
     <h2>Bảng Xếp Hạng Cá Nhân</h2>
-    <div class="note">(💡 Top 3 tô màu huy chương kèm theo số ngày liên tục giữ vị trí trên bảng xếp hạng!)</div>
+    <div class="note">(💡 Top 3 tô màu huy chương kèm theo số ngày liên tục hiển thị nhỏ mờ ở phía trên tên!)</div>
     <div style="overflow-x: auto;">
         <table>
             <thead>
@@ -153,7 +153,7 @@
     let playerAvatars = {}; 
     let matches = [];
     let players = {};
-    let playerStreaks = { 1: {}, 2: {}, 3: {} }; // Lưu chuỗi ngày liên tục cho Top 1, 2, 3
+    let playerStreaks = { 1: {}, 2: {}, 3: {} };
 
     function enterApp() {
         document.getElementById('welcomeScreen').style.display = 'none';
@@ -193,7 +193,6 @@
         });
     }
 
-    // Thuật toán tự động tính toán chuỗi ngày liên tục cho cả Top 1, Top 2, và Top 3
     function calculateAllStatsAndStreaks() {
         players = {};
         playerNames.forEach(name => { 
@@ -212,7 +211,7 @@
 
         let sortedDates = Object.keys(matchesByDate).sort((a, b) => new Date(a) - new Date(b));
 
-        let currentStreakHolders = { 1: {}, 2: {}, 3: {} }; // { rank: { playerName: days } }
+        let currentStreakHolders = { 1: {}, 2: {}, 3: {} };
         playerStreaks = { 1: {}, 2: {}, 3: {} };
 
         let lastDateObj = null;
@@ -257,11 +256,8 @@
                 if (gapDays < 1) gapDays = 1;
             }
 
-            // Xử lý chuỗi liên tục cho Top 1, 2, 3
             [1, 2, 3].forEach(targetRank => {
                 let currentHoldersInRank = Object.keys(newRanks).filter(pName => newRanks[pName] === targetRank);
-                
-                // Kiểm tra xem ai đang giữ hạng này từ kỳ trước và vẫn giữ nguyên hạng đó
                 let existingHolders = currentStreakHolders[targetRank];
                 let nextHolders = {};
 
@@ -273,7 +269,6 @@
                 currentStreakHolders[targetRank] = nextHolders;
             });
 
-            // Gán kết quả vào playerStreaks
             [1, 2, 3].forEach(targetRank => {
                 if (currentStreakHolders[targetRank]) {
                     Object.keys(currentStreakHolders[targetRank]).forEach(pName => {
@@ -287,7 +282,6 @@
             lastDateObj = currentDateObj;
         });
 
-        // Đặt lại số liệu thống kê chính xác cuối cùng để hiển thị bảng xếp hạng chuẩn
         players = {};
         playerNames.forEach(name => { players[name] = { name: name, matches: 0, wins: 0, losses: 0, pointsDiff: 0 }; });
         matches.forEach(m => {
@@ -408,7 +402,6 @@
         
         if (!document.getElementById('matchDate').value) document.getElementById('matchDate').valueAsDate = new Date();
 
-        // 1. CẬP NHẬT BẢNG XẾP HẠNG & HIỂN THỊ HUY HIỆU SỐ NGÀY LIÊN TỤC CHO TOP 1, 2, 3
         let playersArray = Object.values(players).sort((a, b) => b.wins !== a.wins ? b.wins - a.wins : b.pointsDiff - a.pointsDiff);
         const tbody = document.getElementById('leaderboard'); 
         tbody.innerHTML = ""; 
@@ -433,14 +426,14 @@
                 ? `<img src="${playerAvatars[p.name]}" class="player-avatar" onclick="changeAvatar('${p.name}')" title="Bấm để đổi link ảnh">`
                 : `<div class="player-avatar" onclick="changeAvatar('${p.name}')" title="Bấm để thêm link ảnh">📷</div>`;
 
-            // Lấy số ngày liên tục nếu ở Top 1, 2, hoặc 3 (bỏ chữ, chỉ hiện con số)
+            // Lấy số ngày liên tục nếu ở Top 1, 2, hoặc 3 (hiển thị nhỏ mờ ở phía trên tên)
             let streakDays = 0;
             if (rank === 1 && playerStreaks[1][p.name]) streakDays = playerStreaks[1][p.name];
             else if (rank === 2 && playerStreaks[2][p.name]) streakDays = playerStreaks[2][p.name];
             else if (rank === 3 && playerStreaks[3][p.name]) streakDays = playerStreaks[3][p.name];
 
             let streakHtml = streakDays > 0 
-                ? `<span class="streak-badge" title="Số ngày liên tục giữ hạng ${rank}">${streakDays}</span>` 
+                ? `<span class="streak-badge-sub" title="Số ngày liên tục giữ hạng ${rank}">${streakDays} ngày</span>` 
                 : "";
 
             tbody.innerHTML += `<tr class="${rowClass}">
@@ -448,9 +441,9 @@
                 <td>
                     <div class="player-cell">
                         ${avatarImgHtml}
-                        <div style="display: flex; align-items: center; flex-wrap: wrap;">
-                            <span class="editable-name" onclick="editPlayerName('${p.name}')">${p.name} ✏️</span>
+                        <div>
                             ${streakHtml}
+                            <span class="editable-name" onclick="editPlayerName('${p.name}')">${p.name} ✏️</span>
                         </div>
                     </div>
                 </td>
@@ -461,7 +454,6 @@
             </tr>`;
         });
 
-        // 2. CẬP NHẬT LỊCH SỬ TRẬN ĐẤU
         const historyList = document.getElementById('historyList'); 
         historyList.innerHTML = ""; 
 
