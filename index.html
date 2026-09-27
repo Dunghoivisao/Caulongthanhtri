@@ -10,8 +10,31 @@
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
 
     <style>
-        body { font-family: Arial, sans-serif; background-color: #f4f7f6; color: #333; margin: 0; padding: 10px; }
-        .container { max-width: 800px; margin: 0 auto; background: #fff; padding: 20px; border-radius: 8px; box-shadow: 0 4px 8px rgba(0,0,0,0.1); }
+        /* CSS Hình nền mờ sân cầu lông (Opacity khoảng 50-60%) */
+        body { 
+            font-family: Arial, sans-serif; 
+            margin: 0; 
+            padding: 10px; 
+            position: relative;
+            background-color: #f4f7f6;
+            color: #333;
+        }
+        
+        body::before {
+            content: "";
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-image: url('https://images.unsplash.com/photo-1626224583764-f87db24ac4ea?q=80&w=1200&auto=format&fit=crop');
+            background-size: cover;
+            background-position: center;
+            opacity: 0.55; /* Độ mờ khoảng 55% giúp không bị hoa mắt */
+            z-index: -1;
+        }
+
+        .container { max-width: 800px; margin: 0 auto; background: rgba(255, 255, 255, 0.95); padding: 20px; border-radius: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.15); }
         h1, h2, h3 { color: #2c3e50; text-align: center; }
         .form-section { background: #eaf2f8; padding: 15px; border-radius: 6px; margin-bottom: 20px; }
         .team-group { background: #fff; padding: 10px; border-radius: 4px; border: 1px solid #dcdde1; margin-bottom: 10px; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 10px; }
@@ -27,7 +50,7 @@
         .btn-edit { background-color: #f39c12; }
         .btn-delete-match { background-color: #c0392b; }
         
-        table { width: 100%; border-collapse: collapse; margin-top: 10px; }
+        table { width: 100%; border-collapse: collapse; margin-top: 10px; background: #fff; }
         th, td { border: 1px solid #ddd; padding: 10px; text-align: center; vertical-align: middle; }
         th { background-color: #34495e; color: white; }
         .match-history { list-style-type: none; padding: 0; }
@@ -49,7 +72,6 @@
         .rank-2 { background-color: #f1f2f6 !important; } 
         .rank-3 { background-color: #ffeaa7 !important; } 
 
-        .note { text-align: center; font-size: 0.9em; color: #7f8c8d; margin-top: -10px; margin-bottom: 15px; }
         .live-badge { display: inline-block; background-color: #e74c3c; color: white; padding: 3px 8px; border-radius: 12px; font-size: 12px; font-weight: bold; margin-left: 10px; animation: blink 1.5s infinite; }
         @keyframes blink { 0% { opacity: 1; } 50% { opacity: 0.5; } 100% { opacity: 1; } }
         
@@ -58,7 +80,7 @@
             select { margin-bottom: 5px; }
         }
     
-        .welcome-screen { display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100vh; background-color: #f4f7f6; text-align: center; padding: 20px; box-sizing: border-box; }
+        .welcome-screen { display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100vh; background-color: rgba(244, 247, 246, 0.9); text-align: center; padding: 20px; box-sizing: border-box; }
         .welcome-screen h1 { font-size: 2.5em; color: #2c3e50; margin-bottom: 10px; }
         .welcome-screen p { font-size: 1.2em; color: #7f8c8d; margin-bottom: 30px; max-width: 600px; line-height: 1.5; }
         .btn-enter { background-color: #2980b9; font-size: 1.2em; padding: 15px 40px; width: auto; border-radius: 30px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); margin-top: 0; }
@@ -104,7 +126,7 @@
     </div>
 
     <h2>Bảng Xếp Hạng Cá Nhân</h2>
-    <div class="note">(💡 Top 3 tô màu huy chương kèm theo số ngày liên tục nhỏ mờ ở ngay phía sau tên!)</div>
+    
     <div style="overflow-x: auto;">
         <table>
             <thead>
@@ -128,7 +150,7 @@
         </table>
     </div>
 
-    <h2>Lịch Sử Trận Đấu</h2>
+    <h2 style="margin-top: 30px;">Lịch Sử Trận Đấu</h2>
     <div id="historyList"></div>
 </div>
 
@@ -393,7 +415,7 @@
     function updateUI() {
         const selects = ['t1p1', 't1p2', 't2p1', 't2p2'].map(id => document.getElementById(id));
         let currSelections = selects.map(sel => sel.value);
-        let optionsHTML = playerNames.map(name => `<option value="${name}">${name}</name>`).join("");
+        let optionsHTML = playerNames.map(name => `<option value="${name}">${name}</option>`).join("");
         
         selects.forEach((sel, idx) => {
             sel.innerHTML = optionsHTML;
@@ -426,7 +448,6 @@
                 ? `<img src="${playerAvatars[p.name]}" class="player-avatar" onclick="changeAvatar('${p.name}')" title="Bấm để đổi link ảnh">`
                 : `<div class="player-avatar" onclick="changeAvatar('${p.name}')" title="Bấm để thêm link ảnh">📷</div>`;
 
-            // Lấy số ngày liên tục nếu ở Top 1, 2, hoặc 3 (hiển thị số nhỏ mờ ở ngay sau tên)
             let streakDays = 0;
             if (rank === 1 && playerStreaks[1][p.name]) streakDays = playerStreaks[1][p.name];
             else if (rank === 2 && playerStreaks[2][p.name]) streakDays = playerStreaks[2][p.name];
