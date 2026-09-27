@@ -85,7 +85,18 @@
         .match-actions { margin-top: 8px; }
         .editable-name { color: #2980b9; cursor: pointer; font-weight: bold; text-decoration: underline dotted; }
         .editable-name:hover { color: #e67e22; }
-        .avatar-img { width: 35px; height: 35px; border-radius: 50%; object-fit: cover; border: 1px solid #ccc; vertical-align: middle; margin-right: 8px; }
+        
+        /* CSS cho Avatar có hiệu ứng bấm vào */
+        .avatar-img { 
+            width: 42px; height: 42px; border-radius: 50%; object-fit: cover; 
+            border: 2px solid #3498db; vertical-align: middle; margin-right: 10px; 
+            background-color: #eee; cursor: pointer; transition: transform 0.2s, box-shadow 0.2s; 
+        }
+        .avatar-img:hover { 
+            transform: scale(1.1); 
+            box-shadow: 0 0 10px rgba(52, 152, 219, 0.8); 
+        }
+
         .note { text-align: center; font-size: 0.9em; color: #7f8c8d; margin-top: -10px; margin-bottom: 15px; }
         .live-badge { display: inline-block; background-color: #e74c3c; color: white; padding: 3px 8px; border-radius: 12px; font-size: 12px; font-weight: bold; margin-left: 5px; animation: blink 1.5s infinite; }
         @keyframes blink { 0% { opacity: 1; } 50% { opacity: 0.5; } 100% { opacity: 1; } }
@@ -105,7 +116,7 @@
 
 <div id="welcomeScreen" class="welcome-screen">
     <h1>🏸 Welcome to Pick Thủ Thanh Trì 🏸</h1>
-    <p>Ứng dụng giúp bạn ghi lại tỷ số, tự động xếp hạng và quản lý thu chi minh bạch!</p>
+    <p>Ứng dụng ghi điểm cầu lông, xếp hạng và quản lý thu chi tiện lợi!</p>
     <button class="btn-enter" onclick="enterApp()">Enter</button>
 </div>
 
@@ -116,7 +127,7 @@
         <button class="btn-thu-chi-main" onclick="toggleMoneyModal()">💰 Mở Bảng Quản Lý Thu Chi</button>
     </div>
 
-    <!-- Modal Popup Thu Chi -->
+    <!-- Modal Thu Chi -->
     <div id="moneyModalOverlay" class="modal-overlay">
         <div class="money-modal">
             <button class="close-modal-btn" onclick="toggleMoneyModal()">✕</button>
@@ -199,13 +210,13 @@
     </div>
 
     <h2>Bảng Xếp Hạng Cá Nhân</h2>
-    <div class="note">(💡 Nhấn vào tên hoặc ảnh người chơi trong bảng để đổi tên/gắn link avatar)</div>
+    <div class="note">(💡 <strong>Bấm trực tiếp vào ảnh Avatar</strong> để đổi link ảnh riêng • Bấm vào <strong>Tên</strong> để đổi tên)</div>
     <div style="overflow-x: auto;">
         <table>
             <thead>
                 <tr>
                     <th>Hạng</th>
-                    <th>Tên & Avatar</th>
+                    <th>Thành Viên (Avatar & Tên)</th>
                     <th>Trận</th>
                     <th>Thắng</th>
                     <th>Thua</th>
@@ -218,7 +229,7 @@
             <tfoot>
                 <tr>
                     <td colspan="6" style="padding: 10px; background-color: #f8f9fa;">
-                        <button class="btn-inline btn-add" style="width: 100%; margin: 0; font-size: 15px;" onclick="addPlayer()">➕ Thêm người chơi</button>
+                        <button class="btn-inline btn-add" style="width: 100%; margin: 0; font-size: 15px;" onclick="addPlayer()">➕ Thêm người chơi mới</button>
                     </td>
                 </tr>
             </tfoot>
@@ -247,7 +258,7 @@
     const dbRef = database.ref('Nhóm Cầu Lông_data');
 
     let playerNames = ["Người chơi 1", "Người chơi 2", "Người chơi 3"];
-    let playerAvatars = {}; // Lưu link ảnh avatar { "Tên": "url_link" }
+    let playerAvatars = {}; // Lưu trữ link ảnh riêng biệt cho từng người chơi: { "Tên người chơi": "url_link_anh" }
     let matches = [];
     let thuChiData = {}; 
     let players = {};
@@ -317,14 +328,14 @@
     }
 
     function addPlayer() {
-        let newName = prompt("Nhập tên người chơi mới:");
+        let newName = prompt("Nhập tên thành viên mới:");
         if (newName && newName.trim() !== "") {
             let trimmedName = newName.trim();
             if (playerNames.includes(trimmedName)) {
                 alert("Tên này đã tồn tại!");
             } else { 
                 playerNames.push(trimmedName); 
-                let avatarUrl = prompt("Nhập link ảnh avatar cho " + trimmedName + " (có thể để trống):", "");
+                let avatarUrl = prompt(`Nhập link ảnh avatar riêng cho thành viên "${trimmedName}" (có thể để trống):`, "");
                 if (avatarUrl && avatarUrl.trim() !== "") {
                     playerAvatars[trimmedName] = avatarUrl.trim();
                 }
@@ -333,40 +344,44 @@
         }
     }
 
-    function editPlayer(oldName) {
-        let action = prompt(`Chọn thao tác cho "${oldName}":\n1. Đổi tên\n2. Gắn/Đổi link ảnh avatar\n\nNhập số 1 hoặc 2:`, "1");
-        if (action === "1") {
-            let newName = prompt("Nhập tên mới:", oldName);
-            if (newName && newName.trim() !== "" && newName !== oldName) {
-                let trimmedName = newName.trim();
-                if (playerNames.includes(trimmedName)) return alert("Tên đã tồn tại!");
-                let index = playerNames.indexOf(oldName);
-                if (index !== -1) playerNames[index] = trimmedName;
-                
-                if (playerAvatars[oldName]) {
-                    playerAvatars[trimmedName] = playerAvatars[oldName];
-                    delete playerAvatars[oldName];
-                }
+    // Hàm riêng khi bấm trực tiếp vào ảnh Avatar để đổi link ảnh
+    function changeAvatar(playerName, event) {
+        event.stopPropagation(); // Ngăn chặn sự kiện lan ra ngoài
+        let currentAvatar = playerAvatars[playerName] || "";
+        let newAvatar = prompt(`Nhập link ảnh avatar mới cho [${playerName}]:\n(Dán link hình ảnh vào đây, để trống nếu muốn dùng ảnh mặc định)`, currentAvatar);
+        
+        if (newAvatar !== null) {
+            if (newAvatar.trim() !== "") {
+                playerAvatars[playerName] = newAvatar.trim();
+            } else {
+                delete playerAvatars[playerName]; // Xóa nếu để trống
+            }
+            saveData();
+        }
+    }
 
-                matches.forEach(m => {
-                    if (m.t1p1 === oldName) m.t1p1 = trimmedName; 
-                    if (m.t1p2 === oldName) m.t1p2 = trimmedName;
-                    if (m.t2p1 === oldName) m.t2p1 = trimmedName; 
-                    if (m.t2p2 === oldName) m.t2p2 = trimmedName;
-                });
-                saveData();
+    // Hàm đổi tên khi bấm vào tên người chơi
+    function editPlayerName(oldName) {
+        let newName = prompt("Nhập tên mới cho thành viên:", oldName);
+        if (newName && newName.trim() !== "" && newName !== oldName) {
+            let trimmedName = newName.trim();
+            if (playerNames.includes(trimmedName)) return alert("Tên này đã tồn tại!");
+            let index = playerNames.indexOf(oldName);
+            if (index !== -1) playerNames[index] = trimmedName;
+            
+            // Chuyển link avatar sang tên mới nếu có
+            if (playerAvatars[oldName]) {
+                playerAvatars[trimmedName] = playerAvatars[oldName];
+                delete playerAvatars[oldName];
             }
-        } else if (action === "2") {
-            let currentAvatar = playerAvatars[oldName] || "";
-            let newAvatar = prompt(`Nhập link ảnh avatar mới cho ${oldName}:`, currentAvatar);
-            if (newAvatar !== null) {
-                if (newAvatar.trim() !== "") {
-                    playerAvatars[oldName] = newAvatar.trim();
-                } else {
-                    delete playerAvatars[oldName];
-                }
-                saveData();
-            }
+
+            matches.forEach(m => {
+                if (m.t1p1 === oldName) m.t1p1 = trimmedName; 
+                if (m.t1p2 === oldName) m.t1p2 = trimmedName;
+                if (m.t2p1 === oldName) m.t2p1 = trimmedName; 
+                if (m.t2p2 === oldName) m.t2p2 = trimmedName;
+            });
+            saveData();
         }
     }
 
@@ -484,15 +499,13 @@
         tbody.innerHTML = ""; 
         
         playersArray.forEach((p, index) => {
-            let avatarHTML = playerAvatars[p.name] 
-                ? `<img src="${playerAvatars[p.name]}" class="avatar-img" onerror="this.style.display='none'">` 
-                : `<img src="https://cdn-icons-png.flaticon.com/512/149/149071.png" class="avatar-img">`;
+            let avatarUrl = playerAvatars[p.name] ? playerAvatars[p.name] : "https://cdn-icons-png.flaticon.com/512/149/149071.png";
 
             tbody.innerHTML += `<tr>
                 <td><strong>${index + 1}</strong></td>
                 <td style="text-align: left; padding-left: 20px;">
-                    ${avatarHTML}
-                    <span class="editable-name" onclick="editPlayer('${p.name}')">${p.name} ✏️</span>
+                    <img src="${avatarUrl}" class="avatar-img" title="Bấm vào để đổi ảnh Avatar" onclick="changeAvatar('${p.name}', event)" onerror="this.src='https://cdn-icons-png.flaticon.com/512/149/149071.png'">
+                    <span class="editable-name" onclick="editPlayerName('${p.name}')">${p.name} ✏️</span>
                 </td>
                 <td>${p.matches}</td>
                 <td>${p.wins}</td>
