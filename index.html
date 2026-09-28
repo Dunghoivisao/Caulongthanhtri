@@ -271,47 +271,61 @@
                 <input type="date" id="moneyDate" onchange="loadMoneyDataForSelectedDate()">
             </div>
 
-            <!-- Bố cục 2 cột gọn gàng cho 4 khoản chi phí -->
+            <!-- Tổng tiền buổi đánh đưa lên trên trước khi chia -->
+            <div style="display: flex; flex-direction: column; gap: 6px; margin-bottom: 10px;">
+                <div style="display: flex; justify-content: space-between; align-items: center; background: #eaf2f8; padding: 8px; border-radius: 4px; border: 1px solid #b9d3e8;">
+                    <label style="font-weight: bold; color: #2c3e50; font-size: 0.95em;">📊 Tổng tiền buổi đánh:</label>
+                    <span id="totalMoneyDisplay" style="font-size: 15px; font-weight: bold; color: #e74c3c;">0 đ</span>
+                </div>
+            </div>
+
+            <!-- Bố cục 2 cột gọn gàng, nhãn và ô điền tiền ngay bên cạnh nhau -->
             <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 6px; margin-bottom: 10px;">
-                <div style="background: #fff; padding: 6px 8px; border-radius: 4px; border: 1px solid #ddd;">
-                    <label style="font-size: 0.85em; display: block; margin-bottom: 2px;">📦 1 ống cầu:</label>
-                    <input type="number" id="boxShuttle" value="330" style="width: 100%; text-align: center; font-weight: bold; box-sizing: border-box;" oninput="calculateThuChi()">
+                <div style="display: flex; align-items: center; justify-content: space-between; background: #fff; padding: 6px 8px; border-radius: 4px; border: 1px solid #ddd;">
+                    <label style="font-size: 0.85em;">📦 1 ống cầu:</label>
+                    <input type="number" id="boxShuttle" value="330" style="width: 75px; text-align: center; font-weight: bold;" oninput="calculateThuChi()">
                 </div>
                 
-                <div style="background: #fff; padding: 6px 8px; border-radius: 4px; border: 1px solid #ddd;">
-                    <label style="font-size: 0.85em; display: block; margin-bottom: 2px;">🏟️ Sân:</label>
-                    <input type="number" id="courtFee" placeholder="VD: 90" style="width: 100%; text-align: center; font-weight: bold; box-sizing: border-box;" oninput="calculateThuChi()">
+                <div style="display: flex; align-items: center; justify-content: space-between; background: #fff; padding: 6px 8px; border-radius: 4px; border: 1px solid #ddd;">
+                    <label style="font-size: 0.85em;">🏟️ Sân:</label>
+                    <input type="number" id="courtFee" value="90" style="width: 75px; text-align: center; font-weight: bold;" oninput="calculateThuChi()">
+                </div>
+
+                <div style="display: flex; align-items: center; justify-content: space-between; background: #fff; padding: 6px 8px; border-radius: 4px; border: 1px solid #ddd;">
+                    <label style="font-size: 0.85em;">🏸 Quả cầu:</label>
+                    <input type="number" id="shuttleCount" placeholder="Số quả" style="width: 75px; text-align: center; font-weight: bold;" oninput="calculateThuChi()">
                 </div>
 
                 <div style="background: #fff; padding: 6px 8px; border-radius: 4px; border: 1px solid #ddd;">
-                    <label style="font-size: 0.85em; display: block; margin-bottom: 2px;">🏸 Quả cầu:</label>
-                    <input type="number" id="shuttleCount" placeholder="Số quả" style="width: 100%; text-align: center; font-weight: bold; box-sizing: border-box;" oninput="calculateThuChi()">
-                </div>
-
-                <div style="background: #fff; padding: 6px 8px; border-radius: 4px; border: 1px solid #ddd;">
-                    <label style="font-size: 0.85em; display: block; margin-bottom: 2px;">🥤 Nước:</label>
-                    <input type="number" id="waterFee" placeholder="VD: 25" style="width: 100%; text-align: center; font-weight: bold; box-sizing: border-box; margin-bottom: 4px;" oninput="calculateThuChi()">
+                    <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 4px;">
+                        <label style="font-size: 0.85em;">🥤 Nước:</label>
+                        <input type="number" id="waterFee" placeholder="Tiền" style="width: 75px; text-align: center; font-weight: bold;" oninput="calculateThuChi()">
+                    </div>
                     <div style="display: flex; align-items: center; justify-content: space-between;">
                         <span style="font-size: 0.75em; color: #555;">Trả nước:</span>
-                        <select id="waterPayer" style="padding: 2px 4px; font-size: 0.8em; width: 70px;" onchange="calculateThuChi()">
-                            <!-- Tự động điền danh sách -->
+                        <select id="waterPayer" style="padding: 2px 4px; font-size: 0.8em; width: 80px;" onchange="calculateThuChi()">
+                        </select>
+                    </div>
+                </div>
+
+                <!-- Mục Ăn sáng bổ sung -->
+                <div style="background: #fff; padding: 6px 8px; border-radius: 4px; border: 1px solid #ddd; grid-column: span 2;">
+                    <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 4px;">
+                        <label style="font-size: 0.85em;">🍲 Ăn sáng:</label>
+                        <input type="number" id="breakfastFee" placeholder="Tiền" style="width: 75px; text-align: center; font-weight: bold;" oninput="calculateThuChi()">
+                    </div>
+                    <div style="display: flex; align-items: center; justify-content: space-between;">
+                        <span style="font-size: 0.75em; color: #555;">Người trả tiền ăn sáng:</span>
+                        <select id="breakfastPayer" style="padding: 2px 4px; font-size: 0.8em; width: 110px;" onchange="calculateThuChi()">
                         </select>
                     </div>
                 </div>
             </div>
 
-            <!-- Danh sách thành viên hiển thị đầy đủ không cuộn, tên rút gọn -->
+            <!-- Danh sách thành viên tham gia (bỏ tiêu đề) tích sẵn tất cả -->
             <div style="margin-top: 10px;">
-                <label style="font-weight: bold; color: #2c3e50; display: block; margin-bottom: 4px; font-size: 0.9em;">👥 Thành viên tham gia & Tiền cần đóng:</label>
                 <div id="attendanceAndSettlementList" style="background: #fff; padding: 6px; border-radius: 4px; border: 1px solid #ddd; display: flex; flex-direction: column; gap: 4px;">
                     <!-- Javascript tự động chèn -->
-                </div>
-            </div>
-            
-            <div style="display: flex; flex-direction: column; gap: 6px; margin-top: 10px;">
-                <div style="display: flex; justify-content: space-between; align-items: center; background: #eaf2f8; padding: 8px; border-radius: 4px; border: 1px solid #b9d3e8;">
-                    <label style="font-weight: bold; color: #2c3e50; font-size: 0.95em;">📊 Tổng tiền buổi đánh:</label>
-                    <span id="totalMoneyDisplay" style="font-size: 15px; font-weight: bold; color: #e74c3c;">0 đ</span>
                 </div>
             </div>
         </div>
@@ -390,14 +404,12 @@
 </div>
 
 <script>
-    // Hàm phụ trợ lấy từ cuối cùng của tên (dùng riêng cho phần thu chi)
     function getShortName(fullName) {
         if (!fullName) return "";
         let parts = fullName.trim().split(/\s+/);
         return parts[parts.length - 1];
     }
 
-    // Xử lý chế độ Sáng / Tối và cập nhật ngày thực tế theo múi giờ địa phương
     function toggleTheme() {
         document.body.classList.toggle('dark-mode');
         const btn = document.getElementById('themeToggleBtn');
@@ -718,38 +730,47 @@
     function loadMoneyDataForSelectedDate() {
         let dateStr = document.getElementById('moneyDate').value;
         if (!dateStr) return;
-        let dayData = thuChiData[dateStr] || { box: 330, court: "", shuttle: "", water: "", waterPayer: "", attendees: null };
+        let dayData = thuChiData[dateStr] || { box: 330, court: 90, shuttle: "", water: "", waterPayer: "", breakfast: "", breakfastPayer: "", breakfastSelections: {}, attendees: null };
         
         document.getElementById('boxShuttle').value = dayData.box !== undefined ? dayData.box : 330;
-        document.getElementById('courtFee').value = dayData.court !== undefined ? dayData.court : "";
+        document.getElementById('courtFee').value = dayData.court !== undefined && dayData.court !== "" ? dayData.court : 90;
         document.getElementById('shuttleCount').value = dayData.shuttle !== undefined ? dayData.shuttle : "";
         document.getElementById('waterFee').value = dayData.water !== undefined ? dayData.water : "";
+        document.getElementById('breakfastFee').value = dayData.breakfast !== undefined ? dayData.breakfast : "";
 
-        // Điền dropdown người trả nước chỉ hiện tên rút gọn
         const waterPayerSelect = document.getElementById('waterPayer');
         waterPayerSelect.innerHTML = playerNames.map(name => `<option value="${name}">${getShortName(name)}</option>`).join("");
         if (dayData.waterPayer && playerNames.includes(dayData.waterPayer)) {
             waterPayerSelect.value = dayData.waterPayer;
         }
 
-        renderAttendanceAndSettlement(dayData.attendees);
+        const breakfastPayerSelect = document.getElementById('breakfastPayer');
+        breakfastPayerSelect.innerHTML = playerNames.map(name => `<option value="${name}">${getShortName(name)}</option>`).join("");
+        if (dayData.breakfastPayer && playerNames.includes(dayData.breakfastPayer)) {
+            breakfastPayerSelect.value = dayData.breakfastPayer;
+        }
+
+        renderAttendanceAndSettlement(dayData.attendees, dayData.breakfastSelections);
         calculateThuChi(false);
     }
 
-    function renderAttendanceAndSettlement(savedAttendees = null) {
+    function renderAttendanceAndSettlement(savedAttendees = null, savedBreakfasts = null) {
         const container = document.getElementById('attendanceAndSettlementList');
         if (!container) return;
 
         let box = parseFloat(document.getElementById('boxShuttle').value) || 0;
-        let court = parseFloat(document.getElementById('courtFee').value) || 0;
+        let court = parseFloat(document.getElementById('courtFee').value) || 90;
         let shuttle = parseFloat(document.getElementById('shuttleCount').value) || 0;
         let water = parseFloat(document.getElementById('waterFee').value) || 0;
+        let breakfast = parseFloat(document.getElementById('breakfastFee').value) || 0;
         let waterPayer = document.getElementById('waterPayer').value;
+        let breakfastPayer = document.getElementById('breakfastPayer').value;
 
         let totalShuttleMoney = (box / 12) * shuttle * 1000;
         let courtMoney = court * 1000;
         let waterMoney = water * 1000;
-        let totalMoney = courtMoney + totalShuttleMoney + waterMoney;
+        let breakfastMoney = breakfast * 1000;
+        let commonMoney = courtMoney + totalShuttleMoney + waterMoney;
 
         let currentCheckboxes = document.querySelectorAll('.attendance-checkbox');
         let checkedSet = new Set();
@@ -760,7 +781,7 @@
         } else if (savedAttendees) {
             savedAttendees.forEach(n => checkedSet.add(n));
         } else {
-            playerNames.forEach(n => checkedSet.add(n)); // Mặc định tích hết
+            playerNames.forEach(n => checkedSet.add(n)); // Mặc định tích hết toàn bộ
         }
 
         let attendingCount = 0;
@@ -768,19 +789,46 @@
             if (playerNames.includes(n)) attendingCount++;
         });
 
-        let perPersonBase = attendingCount > 0 ? totalMoney / attendingCount : 0;
+        let perPersonCommon = attendingCount > 0 ? commonMoney / attendingCount : 0;
+
+        let breakfastSelections = {};
+        playerNames.forEach(fullName => {
+            let selEl = document.getElementById('breakfast-sel-' + CSS.escape(fullName));
+            if (selEl) {
+                breakfastSelections[fullName] = selEl.value;
+            } else if (savedBreakfasts && savedBreakfasts[fullName]) {
+                breakfastSelections[fullName] = savedBreakfasts[fullName];
+            } else {
+                breakfastSelections[fullName] = "";
+            }
+        });
+
+        let breakfastEaterCount = 0;
+        Object.values(breakfastSelections).forEach(val => {
+            if (val === 'ansang') breakfastEaterCount++;
+        });
+
+        let perPersonBreakfast = breakfastEaterCount > 0 ? breakfastMoney / breakfastEaterCount : 0;
+        let totalMoney = commonMoney + breakfastMoney;
 
         document.getElementById('totalMoneyDisplay').innerText = totalMoney.toLocaleString('vi-VN') + " đ";
 
         container.innerHTML = playerNames.map(fullName => {
             let shortName = getShortName(fullName);
             let isChecked = checkedSet.has(fullName);
+            let bVal = breakfastSelections[fullName] || "";
             let amountText = "0 đ";
             
             if (isChecked && attendingCount > 0) {
-                let finalAmount = perPersonBase;
+                let finalAmount = perPersonCommon;
+                if (bVal === 'ansang') {
+                    finalAmount += perPersonBreakfast;
+                }
                 if (fullName === waterPayer) {
-                    finalAmount = perPersonBase - waterMoney; // Tự động trừ tiền nước người đã trả
+                    finalAmount -= waterMoney;
+                }
+                if (fullName === breakfastPayer) {
+                    finalAmount -= breakfastMoney;
                 }
                 let rounded = Math.ceil(finalAmount / 1000) * 1000;
                 amountText = rounded.toLocaleString('vi-VN') + " đ";
@@ -788,11 +836,17 @@
 
             return `
                 <div style="display: flex; justify-content: space-between; align-items: center; padding: 4px 8px; background: #f8f9fa; border-radius: 4px; border: 1px solid #e9ecef;">
-                    <label style="display: flex; align-items: center; gap: 8px; cursor: pointer; font-size: 0.95em; flex: 1;">
+                    <label style="display: flex; align-items: center; gap: 8px; cursor: pointer; font-size: 0.95em;">
                         <input type="checkbox" class="attendance-checkbox" value="${fullName}" ${isChecked ? 'checked' : ''} onchange="calculateThuChi()">
                         <span><strong>${shortName}</strong></span>
                     </label>
-                    <span style="color: ${isChecked ? '#27ae60' : '#95a5a6'}; font-weight: bold; font-size: 0.95em; min-width: 85px; text-align: right;">${amountText}</span>
+                    <div style="display: flex; align-items: center; gap: 8px;">
+                        <select id="breakfast-sel-${fullName}" style="padding: 2px 4px; font-size: 0.8em;" onchange="calculateThuChi()">
+                            <option value="" ${bVal === '' ? 'selected' : ''}>-- Trống --</option>
+                            <option value="ansang" ${bVal === 'ansang' ? 'selected' : ''}>Ăn sáng</option>
+                        </select>
+                        <span style="color: ${isChecked ? '#27ae60' : '#95a5a6'}; font-weight: bold; font-size: 0.95em; min-width: 80px; text-align: right;">${amountText}</span>
+                    </div>
                 </div>
             `;
         }).join("");
@@ -808,7 +862,15 @@
             if (cb.checked) checkedAttendees.push(cb.value);
         });
 
-        renderAttendanceAndSettlement();
+        let breakfastSelections = {};
+        playerNames.forEach(fullName => {
+            let selEl = document.getElementById('breakfast-sel-' + CSS.escape(fullName));
+            if (selEl) {
+                breakfastSelections[fullName] = selEl.value;
+            }
+        });
+
+        renderAttendanceAndSettlement(checkedAttendees, breakfastSelections);
 
         if (shouldSave) {
             thuChiData[dateStr] = {
@@ -817,6 +879,9 @@
                 shuttle: document.getElementById('shuttleCount').value,
                 water: document.getElementById('waterFee').value,
                 waterPayer: document.getElementById('waterPayer').value,
+                breakfast: document.getElementById('breakfastFee').value,
+                breakfastPayer: document.getElementById('breakfastPayer').value,
+                breakfastSelections: breakfastSelections,
                 attendees: checkedAttendees
             };
             saveData();
