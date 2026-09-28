@@ -487,7 +487,6 @@
         if (data) {
             if (data.players) {
                 if (data.players.length > 0 && typeof data.players[0] === 'string') {
-                    // Tự động migrate dữ liệu cũ từ mảng string sang mảng object ID chuẩn
                     let nameToId = {};
                     playersData = data.players.map((name, idx) => {
                         let id = 'p_' + Date.now() + '_' + idx;
@@ -534,12 +533,13 @@
                             if (d.attendees) {
                                 newAttendees = d.attendees.map(n => nameToId[n] || n);
                             }
+                            let defaultPlayer4Id = playersData.length >= 4 ? playersData[3].id : (playersData.length > 0 ? playersData[0].id : '');
                             thuChiData[dateStr] = {
                                 ...d,
-                                boxPayer: nameToId[d.boxPayer] || d.boxPayer || (nameToId["Tú"] || ''),
-                                courtPayer: nameToId[d.courtPayer] || d.courtPayer || (nameToId["Tú"] || ''),
-                                waterPayer: nameToId[d.waterPayer] || d.waterPayer || '',
-                                breakfastPayer: nameToId[d.breakfastPayer] || d.breakfastPayer || '',
+                                boxPayer: nameToId[d.boxPayer] || d.boxPayer || defaultPlayer4Id,
+                                courtPayer: nameToId[d.courtPayer] || d.courtPayer || defaultPlayer4Id,
+                                waterPayer: nameToId[d.waterPayer] || d.waterPayer || defaultPlayer4Id,
+                                breakfastPayer: nameToId[d.breakfastPayer] || d.breakfastPayer || defaultPlayer4Id,
                                 breakfastSelections: newBreakfastSel,
                                 attendees: newAttendees
                             };
@@ -797,16 +797,14 @@
     function loadMoneyDataForSelectedDate() {
         let dateStr = document.getElementById('moneyDate').value;
         if (!dateStr) return;
-        let defaultTúId = "";
-        let túObj = playersData.find(p => p.name === "Tú");
-        if (túObj) defaultTúId = túObj.id;
-        else if (playersData.length > 0) defaultTúId = playersData[0].id;
+        
+        let defaultPlayer4Id = playersData.length >= 4 ? playersData[3].id : (playersData.length > 0 ? playersData[0].id : '');
 
         let dayData = thuChiData[dateStr] || { 
-            box: 330, boxPayer: defaultTúId, 
-            court: 90, courtPayer: defaultTúId, 
-            shuttle: "", water: "", waterPayer: "", 
-            breakfast: "", breakfastPayer: "", 
+            box: 330, boxPayer: defaultPlayer4Id, 
+            court: 90, courtPayer: defaultPlayer4Id, 
+            shuttle: "", water: "", waterPayer: defaultPlayer4Id, 
+            breakfast: "", breakfastPayer: defaultPlayer4Id, 
             breakfastSelections: {}, attendees: null 
         };
         
@@ -816,7 +814,7 @@
         document.getElementById('waterFee').value = dayData.water !== undefined ? dayData.water : "";
         document.getElementById('breakfastFee').value = dayData.breakfast !== undefined ? dayData.breakfast : "";
         
-        // Cập nhật các dropdown người trả tiền
+        // Cập nhật tất cả các dropdown người trả tiền, mặc định là người chơi số 4 và text hiển thị là từ cuối cùng
         ['boxPayer', 'courtPayer', 'waterPayer', 'breakfastPayer'].forEach(id => {
             const selectEl = document.getElementById(id);
             if (selectEl) {
@@ -824,10 +822,8 @@
                 let savedPayer = dayData[id];
                 if (savedPayer && playersData.some(p => p.id === savedPayer)) {
                     selectEl.value = savedPayer;
-                } else if (id === 'boxPayer' || id === 'courtPayer') {
-                    selectEl.value = defaultTúId;
                 } else {
-                    selectEl.value = "";
+                    selectEl.value = defaultPlayer4Id;
                 }
             }
         });
@@ -857,15 +853,13 @@
         let boxMoney = box * 1000;
         let commonMoney = courtMoney + totalShuttleMoney + waterMoney;
 
-        let defaultTúId = "";
-        let túObj = playersData.find(p => p.name === "Tú");
-        if (túObj) defaultTúId = túObj.id;
+        let player4Id = playersData.length >= 4 ? playersData[3].id : null;
+        let isBoxPayerPlayer4 = player4Id && boxPayer === player4Id;
 
         let checkedSet = new Set();
         if (savedAttendees && savedAttendees.length > 0) {
             savedAttendees.forEach(id => checkedSet.add(id));
         } else {
-            // Mặc định tick xanh tất cả các tên ở mọi ngày khi chưa có thao tác bỏ chọn
             playersData.forEach(p => checkedSet.add(p.id));
         }
 
@@ -908,10 +902,11 @@
                 if (bVal === 'ansang') {
                     finalAmount += perPersonBreakfast;
                 }
-                if (boxPayer && boxPayer !== defaultTúId && pId === boxPayer) {
+                // Nếu người trả ống cầu không phải người chơi số 4 thì mới trừ tiền của người đó
+                if (!isBoxPayerPlayer4 && boxPayer && pId === boxPayer) {
                     finalAmount -= boxMoney;
                 }
-                if (courtPayer && courtPayer !== defaultTúId && pId === courtPayer) {
+                if (courtPayer && pId === courtPayer) {
                     finalAmount -= courtMoney;
                 }
                 if (waterPayer && pId === waterPayer) {
