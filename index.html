@@ -95,6 +95,7 @@
         body.dark-mode .money-modal [style*="background: #fff"] { background: #34495e !important; border-color: #555 !important; }
         body.dark-mode .money-modal [style*="background: #eaf2f8"] { background: #2c3e50 !important; border-color: #555 !important; }
         body.dark-mode .money-modal [style*="background: #e8f8f5"] { background: #1b4f42 !important; border-color: #27ae60 !important; }
+        body.dark-mode .money-modal [style*="background: #f1f2f6"] { background: #455a64 !important; border-color: #546e7a !important; color: white !important; }
 
         /* Nút chế độ tối ở góc phải phần tiêu đề */
         #themeToggleBtn {
@@ -122,7 +123,7 @@
         .money-modal {
             background: #fff;
             width: 90%;
-            max-width: 500px;
+            max-width: 550px;
             border: 2px solid #e67e22;
             padding: 20px;
             border-radius: 10px;
@@ -229,6 +230,7 @@
             .header-top-row { flex-direction: column; }
             .header-spacer { display: none; }
             #themeToggleBtn { width: 100%; margin-top: 5px; }
+            .money-row { flex-direction: column; align-items: stretch !important; gap: 5px; }
         }
         .welcome-screen { display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100vh; background-color: rgba(244, 247, 246, 0.95); text-align: center; padding: 20px; box-sizing: border-box; transition: background 0.3s; }
         .welcome-screen h1 { font-size: 2.5em; color: #2c3e50; margin-bottom: 10px; }
@@ -271,37 +273,57 @@
                 <input type="date" id="moneyDate" onchange="loadMoneyDataForSelectedDate()">
             </div>
             <div style="display: flex; flex-direction: column; gap: 10px;">
-                <div style="display: flex; justify-content: space-between; align-items: center; background: #fff; padding: 8px; border-radius: 4px; border: 1px solid #ddd;">
+                <!-- Tiền ống cầu -->
+                <div class="money-row" style="display: flex; justify-content: space-between; align-items: center; background: #fff; padding: 8px; border-radius: 4px; border: 1px solid #ddd;">
                     <label>📦 1 ống cầu:</label>
-                    <input type="number" id="boxShuttle" value="330" style="width: 100px; text-align: center; font-weight: bold;" oninput="calculateThuChi()">
+                    <input type="number" id="boxShuttle" value="330" style="width: 80px; text-align: center; font-weight: bold;" oninput="calculateThuChi()">
                 </div>
                 
-                <div style="display: flex; justify-content: space-between; align-items: center; background: #fff; padding: 8px; border-radius: 4px; border: 1px solid #ddd;">
+                <!-- Tiền sân -->
+                <div class="money-row" style="display: flex; justify-content: space-between; align-items: center; background: #fff; padding: 8px; border-radius: 4px; border: 1px solid #ddd;">
                     <label>🏟️ Sân:</label>
-                    <input type="number" id="courtFee" placeholder="VD: 90" style="width: 100px; text-align: center; font-weight: bold;" oninput="calculateThuChi()">
+                    <input type="number" id="courtFee" placeholder="VD: 90" style="width: 80px; text-align: center; font-weight: bold;" oninput="calculateThuChi()">
                 </div>
-                <div style="display: flex; justify-content: space-between; align-items: center; background: #fff; padding: 8px; border-radius: 4px; border: 1px solid #ddd;">
+
+                <!-- Số quả cầu đã dùng -->
+                <div class="money-row" style="display: flex; justify-content: space-between; align-items: center; background: #fff; padding: 8px; border-radius: 4px; border: 1px solid #ddd;">
                     <label>🏸 Số quả cầu đã dùng:</label>
                     <input type="number" id="shuttleCount" style="width: 100px; text-align: center; font-weight: bold;" oninput="calculateThuChi()">
                 </div>
-                <div style="display: flex; justify-content: space-between; align-items: center; background: #fff; padding: 8px; border-radius: 4px; border: 1px solid #ddd;">
+
+                <!-- Tiền nước -->
+                <div class="money-row" style="display: flex; justify-content: space-between; align-items: center; background: #fff; padding: 8px; border-radius: 4px; border: 1px solid #ddd;">
                     <label>🥤 Nước:</label>
-                    <input type="number" id="waterFee" style="width: 100px; text-align: center; font-weight: bold;" oninput="calculateThuChi()">
+                    <input type="number" id="waterFee" placeholder="VD: 60" style="width: 80px; text-align: center; font-weight: bold;" oninput="calculateThuChi()">
                 </div>
             </div>
+
+            <!-- Phần chọn thành viên đi đánh (Checkboxes) -->
+            <div style="margin-top: 15px;">
+                <label style="font-weight: bold; color: #2c3e50; display: block; margin-bottom: 5px;">👥 Chọn thành viên tham gia buổi này:</label>
+                <div id="attendanceCheckboxes" style="display: flex; flex-wrap: wrap; gap: 8px; background: #fff; padding: 10px; border-radius: 4px; border: 1px solid #ddd;">
+                    <!-- Javascript tự động chèn các ô checkbox thành viên -->
+                </div>
+            </div>
+            
             <hr style="border: none; border-top: 1px dashed #ccc; margin: 15px 0;">
+            
             <div style="display: flex; flex-direction: column; gap: 10px;">
                 <div style="display: flex; justify-content: space-between; align-items: center; background: #eaf2f8; padding: 10px; border-radius: 4px; border: 1px solid #b9d3e8;">
                     <label style="font-weight: bold; color: #2c3e50;">📊 Tổng tiền buổi đánh:</label>
                     <span id="totalMoneyDisplay" style="font-size: 16px; font-weight: bold; color: #e74c3c;">0 đ</span>
                 </div>
-                <div style="display: flex; justify-content: space-between; align-items: center; background: #fff; padding: 8px; border-radius: 4px; border: 1px solid #ddd;">
-                    <label>👥 Số người tham gia:</label>
-                    <input type="number" id="peopleCount" style="width: 100px; text-align: center; font-weight: bold;" oninput="calculateThuChi()">
-                </div>
                 <div style="display: flex; justify-content: space-between; align-items: center; background: #e8f8f5; padding: 12px; border-radius: 4px; border: 1px solid #a3e4d7;">
-                    <label style="font-weight: bold; color: #16a085;">💵 Mỗi người đóng:</label>
+                    <label style="font-weight: bold; color: #16a085;">💵 Tiền mỗi người đi phải đóng:</label>
                     <span id="perPersonDisplay" style="font-size: 18px; font-weight: bold; color: #27ae60;">0 đ</span>
+                </div>
+            </div>
+
+            <!-- Bảng quyết toán số tiền cuối cùng mỗi người cần đóng -->
+            <div style="margin-top: 15px;">
+                <h4 style="margin: 10px 0 5px 0; color: #d35400;">📋 Danh sách cần đóng tiền:</h4>
+                <div id="settlementSummary" style="background: #fdfefe; border: 1px solid #dcdde1; border-radius: 6px; padding: 10px; font-size: 0.9em; max-height: 150px; overflow-y: auto;">
+                    <em>Chưa có dữ liệu tính toán.</em>
                 </div>
             </div>
         </div>
@@ -667,8 +689,25 @@
             const mm = String(today.getMonth() + 1).padStart(2, '0');
             const dd = String(today.getDate()).padStart(2, '0');
             document.getElementById('moneyDate').value = `${yyyy}-${mm}-${dd}`;
+            
             loadMoneyDataForSelectedDate();
         }
+    }
+
+    function renderAttendanceCheckboxes(savedAttendees = null) {
+        const container = document.getElementById('attendanceCheckboxes');
+        if (!container) return;
+        
+        container.innerHTML = playerNames.map(name => {
+            // Mặc định tích chọn hết nếu chưa lưu dữ liệu cho ngày đó
+            let isChecked = savedAttendees ? savedAttendees.includes(name) : true;
+            return `
+                <label style="display: inline-flex; align-items: center; gap: 5px; background: #f1f2f6; padding: 4px 8px; border-radius: 4px; cursor: pointer; font-size: 0.9em;">
+                    <input type="checkbox" class="attendance-checkbox" value="${name}" ${isChecked ? 'checked' : ''} onchange="calculateThuChi()">
+                    ${name}
+                </label>
+            `;
+        }).join("");
     }
 
     function toggleTrashModal() {
@@ -702,39 +741,67 @@
     function loadMoneyDataForSelectedDate() {
         let dateStr = document.getElementById('moneyDate').value;
         if (!dateStr) return;
-        let dayData = thuChiData[dateStr] || { box: 330, court: "", shuttle: "", water: "", people: "" };
+        let dayData = thuChiData[dateStr] || { box: 330, court: "", shuttle: "", water: "", attendees: null };
         
         document.getElementById('boxShuttle').value = dayData.box !== undefined ? dayData.box : 330;
         document.getElementById('courtFee').value = dayData.court !== undefined ? dayData.court : "";
         document.getElementById('shuttleCount').value = dayData.shuttle !== undefined ? dayData.shuttle : "";
         document.getElementById('waterFee').value = dayData.water !== undefined ? dayData.water : "";
-        document.getElementById('peopleCount').value = dayData.people !== undefined ? dayData.people : "";
+
+        renderAttendanceCheckboxes(dayData.attendees);
         calculateThuChi(false);
     }
 
     function calculateThuChi(shouldSave = true) {
         let dateStr = document.getElementById('moneyDate').value;
         if (!dateStr) return;
+
         let box = parseFloat(document.getElementById('boxShuttle').value) || 0;
         let court = parseFloat(document.getElementById('courtFee').value) || 0;
         let shuttle = parseFloat(document.getElementById('shuttleCount').value) || 0;
         let water = parseFloat(document.getElementById('waterFee').value) || 0;
-        let people = parseInt(document.getElementById('peopleCount').value) || 0;
+
+        // Lấy danh sách những người được tích chọn tham gia
+        let checkboxes = document.querySelectorAll('.attendance-checkbox');
+        let checkedAttendees = [];
+        checkboxes.forEach(cb => {
+            if (cb.checked) checkedAttendees.push(cb.value);
+        });
+        let people = checkedAttendees.length;
+
         let totalShuttleMoney = (box / 12) * shuttle * 1000;
-        let totalMoney = (court * 1000) + totalShuttleMoney + (water * 1000);
+        let courtMoney = court * 1000;
+        let waterMoney = water * 1000;
+
+        let totalMoney = courtMoney + totalShuttleMoney + waterMoney;
         let perPerson = 0;
         if (people > 0) {
             perPerson = Math.ceil(totalMoney / people / 1000) * 1000;
         }
+
         document.getElementById('totalMoneyDisplay').innerText = totalMoney.toLocaleString('vi-VN') + " đ";
         document.getElementById('perPersonDisplay').innerText = perPerson > 0 ? perPerson.toLocaleString('vi-VN') + " đ" : "0 đ";
+
+        // Bảng quyết toán số tiền cuối cùng mỗi người đi phải đóng
+        let summaryHTML = "";
+        if (people > 0 && totalMoney > 0) {
+            let lines = [];
+            checkedAttendees.forEach(name => {
+                lines.push(`<div style="margin-bottom: 4px; display: flex; justify-content: space-between;"><span><strong>${name}</strong>:</span> <span style="color: #27ae60; font-weight: bold;">Cần đóng ${perPerson.toLocaleString('vi-VN')} đ</span></div>`);
+            });
+            summaryHTML = lines.join("");
+        } else {
+            summaryHTML = `<em style="color:#7f8c8d;">Vui lòng nhập chi phí và chọn ít nhất một người tham gia.</em>`;
+        }
+        document.getElementById('settlementSummary').innerHTML = summaryHTML;
+
         if (shouldSave) {
             thuChiData[dateStr] = {
                 box: document.getElementById('boxShuttle').value,
                 court: document.getElementById('courtFee').value,
                 shuttle: document.getElementById('shuttleCount').value,
                 water: document.getElementById('waterFee').value,
-                people: document.getElementById('peopleCount').value
+                attendees: checkedAttendees
             };
             saveData();
         }
