@@ -424,6 +424,11 @@
         return p ? p.name : id;
     }
 
+    function getTuPlayerId() {
+        let tu = playersData.find(p => p.name && p.name.toLowerCase().includes('tú'));
+        return tu ? tu.id : (playersData.length > 0 ? playersData[0].id : '');
+    }
+
     function toggleTheme() {
         document.body.classList.toggle('dark-mode');
         const btn = document.getElementById('themeToggleBtn');
@@ -533,13 +538,13 @@
                             if (d.attendees) {
                                 newAttendees = d.attendees.map(n => nameToId[n] || n);
                             }
-                            let defaultPlayer4Id = playersData.length >= 4 ? playersData[3].id : (playersData.length > 0 ? playersData[0].id : '');
+                            let defaultTuId = getTuPlayerId();
                             thuChiData[dateStr] = {
                                 ...d,
-                                boxPayer: nameToId[d.boxPayer] || d.boxPayer || defaultPlayer4Id,
-                                courtPayer: nameToId[d.courtPayer] || d.courtPayer || defaultPlayer4Id,
-                                waterPayer: nameToId[d.waterPayer] || d.waterPayer || defaultPlayer4Id,
-                                breakfastPayer: nameToId[d.breakfastPayer] || d.breakfastPayer || defaultPlayer4Id,
+                                boxPayer: nameToId[d.boxPayer] || d.boxPayer || defaultTuId,
+                                courtPayer: nameToId[d.courtPayer] || d.courtPayer || defaultTuId,
+                                waterPayer: nameToId[d.waterPayer] || d.waterPayer || defaultTuId,
+                                breakfastPayer: nameToId[d.breakfastPayer] || d.breakfastPayer || defaultTuId,
                                 breakfastSelections: newBreakfastSel,
                                 attendees: newAttendees
                             };
@@ -798,13 +803,13 @@
         let dateStr = document.getElementById('moneyDate').value;
         if (!dateStr) return;
         
-        let defaultPlayer4Id = playersData.length >= 4 ? playersData[3].id : (playersData.length > 0 ? playersData[0].id : '');
+        let defaultTuId = getTuPlayerId();
 
         let dayData = thuChiData[dateStr] || { 
-            box: 330, boxPayer: defaultPlayer4Id, 
-            court: 90, courtPayer: defaultPlayer4Id, 
-            shuttle: "", water: "", waterPayer: defaultPlayer4Id, 
-            breakfast: "", breakfastPayer: defaultPlayer4Id, 
+            box: 330, boxPayer: defaultTuId, 
+            court: 90, courtPayer: defaultTuId, 
+            shuttle: "", water: "", waterPayer: defaultTuId, 
+            breakfast: "", breakfastPayer: defaultTuId, 
             breakfastSelections: {}, attendees: null 
         };
         
@@ -814,7 +819,7 @@
         document.getElementById('waterFee').value = dayData.water !== undefined ? dayData.water : "";
         document.getElementById('breakfastFee').value = dayData.breakfast !== undefined ? dayData.breakfast : "";
         
-        // Cập nhật tất cả các dropdown người trả tiền, mặc định là người chơi số 4 và text hiển thị là từ cuối cùng
+        // Cập nhật tất cả các dropdown người trả tiền, mặc định là Tú và text hiển thị là từ cuối cùng
         ['boxPayer', 'courtPayer', 'waterPayer', 'breakfastPayer'].forEach(id => {
             const selectEl = document.getElementById(id);
             if (selectEl) {
@@ -823,7 +828,7 @@
                 if (savedPayer && playersData.some(p => p.id === savedPayer)) {
                     selectEl.value = savedPayer;
                 } else {
-                    selectEl.value = defaultPlayer4Id;
+                    selectEl.value = defaultTuId;
                 }
             }
         });
@@ -853,8 +858,8 @@
         let boxMoney = box * 1000;
         let commonMoney = courtMoney + totalShuttleMoney + waterMoney;
 
-        let player4Id = playersData.length >= 4 ? playersData[3].id : null;
-        let isBoxPayerPlayer4 = player4Id && boxPayer === player4Id;
+        let tuPlayerId = getTuPlayerId();
+        let isBoxPayerTu = tuPlayerId && boxPayer === tuPlayerId;
 
         let checkedSet = new Set();
         if (savedAttendees && savedAttendees.length > 0) {
@@ -902,8 +907,8 @@
                 if (bVal === 'ansang') {
                     finalAmount += perPersonBreakfast;
                 }
-                // Nếu người trả ống cầu không phải người chơi số 4 thì mới trừ tiền của người đó
-                if (!isBoxPayerPlayer4 && boxPayer && pId === boxPayer) {
+                // Nếu người trả ống cầu không phải Tú thì mới trừ tiền của người đó
+                if (!isBoxPayerTu && boxPayer && pId === boxPayer) {
                     finalAmount -= boxMoney;
                 }
                 if (courtPayer && pId === courtPayer) {
