@@ -210,70 +210,65 @@
         tr td:last-child { border-top-right-radius: 8px; border-bottom-right-radius: 8px; }
             
         /* ========================================================== */
-        /* HIỆU ỨNG "BIỂN VÀNG" CHÓI LÒA CHO HẠNG 1                     */
+        /* HIỆU ỨNG GLOW VÀNG SANG TRỌNG CHO HẠNG 1                   */
         /* ========================================================== */
         tr.rank-1 {
             position: relative;
-            background: linear-gradient(135deg, #fff9e6 0%, #fff3cc 50%, #ffe680 100%) !important;
-            box-shadow: 0 0 25px rgba(255, 215, 0, 0.7), inset 0 0 15px rgba(255, 255, 255, 0.9);
-            transform: scale(1.02);
+            background: linear-gradient(135deg, #fffbe6 0%, #fff2cc 50%, #ffe680 100%) !important;
+            box-shadow: 0 0 25px rgba(255, 215, 0, 0.75), inset 0 0 15px rgba(255, 255, 255, 0.9) !important;
+            transform: scale(1.01);
             transition: all 0.3s ease;
         }
 
         tr.rank-1 td {
-            border-top: 3px solid #ffcc00 !important;
-            border-bottom: 3px solid #ffcc00 !important;
+            border-top: 2px solid #ffcc00 !important;
+            border-bottom: 2px solid #ffcc00 !important;
             color: #1a1a1a !important;
             font-weight: bold;
         }
 
         tr.rank-1 td:first-child {
-            border-left: 3px solid #ffcc00 !important;
-            position: relative;
+            border-left: 2px solid #ffcc00 !important;
         }
 
         tr.rank-1 td:last-child {
-            border-right: 3px solid #ffcc00 !important;
+            border-right: 2px solid #ffcc00 !important;
         }
 
-        /* Huy hiệu vương giả gắn nổi phía trên hàng hạng 1 */
-        tr.rank-1 td:nth-child(2)::before {
-            content: "👑 TOP 1 • VƯƠNG GIẢ";
+        /* Nhãn TOP 1 nhỏ gọn ở góc trên cùng bên trái của dòng */
+        tr.rank-1::before {
+            content: "TOP 1";
             position: absolute;
-            top: -16px;
-            left: 50%;
-            transform: translateX(-50%);
+            top: -10px;
+            left: 8px;
             background: linear-gradient(135deg, #ffaa00, #ff3300);
             color: #ffffff;
             font-weight: 800;
-            font-size: 11px;
-            padding: 3px 14px;
-            border-radius: 20px;
-            box-shadow: 0 4px 12px rgba(255, 51, 0, 0.5);
-            border: 2px solid #ffffff;
-            letter-spacing: 1.5px;
-            text-transform: uppercase;
-            white-space: nowrap;
+            font-size: 9px;
+            padding: 2px 8px;
+            border-radius: 4px;
+            box-shadow: 0 2px 5px rgba(255, 51, 0, 0.4);
+            letter-spacing: 1px;
             z-index: 5;
         }
 
         body.dark-mode tr.rank-1 {
-            background: linear-gradient(135deg, #3d3300 0%, #2e2600 50%, #1f1900 100%) !important;
-            box-shadow: 0 0 25px rgba(255, 215, 0, 0.4), inset 0 0 15px rgba(255, 215, 0, 0.2);
+            background: linear-gradient(135deg, #4d3d00 0%, #332600 50%, #1a1300 100%) !important;
+            box-shadow: 0 0 25px rgba(255, 215, 0, 0.5), inset 0 0 15px rgba(255, 215, 0, 0.2) !important;
         }
 
         body.dark-mode tr.rank-1 td {
-            border-top: 3px solid #ffd700 !important;
-            border-bottom: 3px solid #ffd700 !important;
+            border-top: 2px solid #ffd700 !important;
+            border-bottom: 2px solid #ffd700 !important;
             color: #fff9e6 !important;
         }
 
         body.dark-mode tr.rank-1 td:first-child {
-            border-left: 3px solid #ffd700 !important;
+            border-left: 2px solid #ffd700 !important;
         }
 
         body.dark-mode tr.rank-1 td:last-child {
-            border-right: 3px solid #ffd700 !important;
+            border-right: 2px solid #ffd700 !important;
         }
         /* ========================================================== */
 
@@ -1161,7 +1156,7 @@
                 let rankClass = "";
                 let rankDisplay = `<strong>${index + 1}</strong>`;
                 
-                if (index === 0) { rankClass = "rank-1"; rankDisplay = "🥇"; }
+                if (index === 0) { rankClass = "rank-1"; rankDisplay = "👑"; }
                 else if (index === 1) { rankClass = "rank-2"; rankDisplay = "🥈"; }
                 else if (index === 2) { rankClass = "rank-3"; rankDisplay = "🥉"; }
                 
