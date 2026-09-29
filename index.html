@@ -112,8 +112,9 @@
         body.dark-mode input, body.dark-mode select { background: #455a64; color: white; border: 1px solid #546e7a; }
         body.dark-mode table th { background-color: #1abc9c; color: white; }
         body.dark-mode table td { border-color: #555; }
-        body.dark-mode tr.rank-1, body.dark-mode tr.rank-2 { background-color: rgba(60, 60, 60, 0.5); }
-        body.dark-mode tr.rank-3 { background-color: rgba(205, 127, 50, 0.2); }
+        body.dark-mode tr.rank-1 { background-color: rgba(60, 55, 30, 0.6); }
+        body.dark-mode tr.rank-2 { background-color: rgba(60, 60, 60, 0.5); }
+        body.dark-mode tr.rank-3 { background-color: rgba(205, 127, 50, 0.3); }
         body.dark-mode .match-item { background: #34495e; color: #ecf0f1; border-left-color: #1abc9c; }
         body.dark-mode .note { color: #aaa; }
         body.dark-mode .welcome-screen { background-color: rgba(20, 20, 20, 0.95); }
@@ -210,15 +211,15 @@
         tr td:last-child { border-top-right-radius: 8px; border-bottom-right-radius: 8px; }
             
         /* ========================================================== */
-        /* GIAO DIỆN BÌNH THƯỜNG CHO HẠNG 1 (BỎ MÀU VÀNG & GLOW)      */
+        /* MÀU SẮC TOP 3: VÀNG NHẸ, BẠC NHẸ VÀ ĐỒNG                     */
         /* ========================================================== */
         tr.rank-1 {
-            background-color: rgba(242, 244, 244, 0.95) !important; /* Trở về nền bình thường */
+            background-color: rgba(255, 249, 219, 0.95) !important; /* Vàng nhẹ đại diện Huy chương Vàng */
             position: relative;
         }
 
         tr.rank-1 td:first-child {
-            position: relative; /* Dùng để neo nhãn TOP 1 nằm ngay trên ô đầu tiên */
+            position: relative;
         }
 
         /* Nhãn TOP 1 nổi lên phía trên đầu ô đầu tiên */
@@ -238,10 +239,16 @@
             white-space: nowrap;
             z-index: 10;
         }
+
+        tr.rank-2 { 
+            background-color: rgba(240, 244, 248, 0.95) !important; /* Xám bạc nhẹ đại diện Huy chương Bạc */
+        }
+        
+        tr.rank-3 { 
+            background-color: rgba(253, 242, 233, 0.95) !important; /* Màu đồng đại diện Huy chương Đồng */
+        }
         /* ========================================================== */
 
-        tr.rank-2 { background-color: rgba(242, 244, 244, 0.95); }
-        tr.rank-3 { background-color: rgba(253, 242, 233, 0.95); }
         .match-item { background: #ecf0f1; margin-bottom: 8px; padding: 12px; border-radius: 4px; border-left: 5px solid #3498db; line-height: 1.5; transition: background 0.3s; }
         .match-actions { margin-top: 8px; }
         
@@ -476,7 +483,6 @@
         <h2>Bảng Xếp Hạng Cá Nhân</h2>
         <div class="note">(💡 Bấm trực tiếp vào <strong>Avatar</strong> để đổi ảnh • Bấm trực tiếp vào <strong>Tên</strong> để đổi tên)</div>
         
-        <!-- Thêm padding-top vào vùng chứa bảng để hiển thị nhãn TOP 1 không bị cắt -->
         <div style="overflow-x: auto; padding-top: 15px;">
             <table>
                 <thead>
