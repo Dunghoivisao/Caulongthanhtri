@@ -210,11 +210,11 @@
         tr td:last-child { border-top-right-radius: 8px; border-bottom-right-radius: 8px; }
             
         /* ========================================================== */
-        /* HIỆU ỨNG GLOW VÀNG SANG TRỌNG CHO HẠNG 1                   */
+        /* HIỆU ỨNG VÀNG HOÀNG KIM & GLOW NGOÀI CHO HẠNG 1             */
         /* ========================================================== */
         tr.rank-1 {
-            background: linear-gradient(135deg, #fffbe6 0%, #fff2cc 50%, #ffe680 100%) !important;
-            box-shadow: 0 0 25px rgba(255, 215, 0, 0.75), inset 0 0 15px rgba(255, 255, 255, 0.9) !important;
+            background: #ffe552 !important; /* Màu vàng hoàng kim sáng, sạch và đồng nhất */
+            box-shadow: 0 0 18px rgba(255, 215, 0, 0.8) !important; /* Glow tỏa ra ở viền ngoài, không làm bẩn nền */
             transform: scale(1.01);
             transition: all 0.3s ease;
         }
@@ -235,7 +235,7 @@
             border-right: 2px solid #ffcc00 !important;
         }
 
-        /* Nhãn TOP 1 nổi lên phía trên đầu ô đầu tiên, hoàn toàn không ảnh hưởng nội dung bảng */
+        /* Nhãn TOP 1 nổi lên phía trên đầu ô đầu tiên */
         tr.rank-1 td:first-child::before {
             content: "👑 TOP 1";
             position: absolute;
@@ -254,14 +254,14 @@
         }
 
         body.dark-mode tr.rank-1 {
-            background: linear-gradient(135deg, #4d3d00 0%, #332600 50%, #1a1300 100%) !important;
-            box-shadow: 0 0 25px rgba(255, 215, 0, 0.5), inset 0 0 15px rgba(255, 215, 0, 0.2) !important;
+            background: #7a5c00 !important; /* Màu vàng hoàng kim đậm hơn một chút cho chế độ tối */
+            box-shadow: 0 0 18px rgba(255, 215, 0, 0.6) !important;
         }
 
         body.dark-mode tr.rank-1 td {
             border-top: 2px solid #ffd700 !important;
             border-bottom: 2px solid #ffd700 !important;
-            color: #fff9e6 !important;
+            color: #fffde6 !important;
         }
 
         body.dark-mode tr.rank-1 td:first-child {
