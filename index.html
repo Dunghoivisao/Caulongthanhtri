@@ -112,8 +112,8 @@
         body.dark-mode input, body.dark-mode select { background: #455a64; color: white; border: 1px solid #546e7a; }
         body.dark-mode table th { background-color: #1abc9c; color: white; }
         body.dark-mode table td { border-color: #555; }
-        body.dark-mode tr.rank-2 { background-color: rgba(192, 192, 192, 0.3); }
-        body.dark-mode tr.rank-3 { background-color: rgba(205, 127, 50, 0.3); }
+        body.dark-mode tr.rank-1, body.dark-mode tr.rank-2 { background-color: rgba(60, 60, 60, 0.5); }
+        body.dark-mode tr.rank-3 { background-color: rgba(205, 127, 50, 0.2); }
         body.dark-mode .match-item { background: #34495e; color: #ecf0f1; border-left-color: #1abc9c; }
         body.dark-mode .note { color: #aaa; }
         body.dark-mode .welcome-screen { background-color: rgba(20, 20, 20, 0.95); }
@@ -210,29 +210,15 @@
         tr td:last-child { border-top-right-radius: 8px; border-bottom-right-radius: 8px; }
             
         /* ========================================================== */
-        /* HIỆU ỨNG VÀNG HOÀNG KIM & GLOW NGOÀI CHO HẠNG 1             */
+        /* GIAO DIỆN BÌNH THƯỜNG CHO HẠNG 1 (BỎ MÀU VÀNG & GLOW)      */
         /* ========================================================== */
         tr.rank-1 {
-            background: #ffe552 !important; /* Màu vàng hoàng kim sáng, sạch và đồng nhất */
-            box-shadow: 0 0 18px rgba(255, 215, 0, 0.8) !important; /* Glow tỏa ra ở viền ngoài, không làm bẩn nền */
-            transform: scale(1.01);
-            transition: all 0.3s ease;
-        }
-
-        tr.rank-1 td {
-            border-top: 2px solid #ffcc00 !important;
-            border-bottom: 2px solid #ffcc00 !important;
-            color: #1a1a1a !important;
-            font-weight: bold;
+            background-color: rgba(242, 244, 244, 0.95) !important; /* Trở về nền bình thường */
+            position: relative;
         }
 
         tr.rank-1 td:first-child {
-            border-left: 2px solid #ffcc00 !important;
             position: relative; /* Dùng để neo nhãn TOP 1 nằm ngay trên ô đầu tiên */
-        }
-
-        tr.rank-1 td:last-child {
-            border-right: 2px solid #ffcc00 !important;
         }
 
         /* Nhãn TOP 1 nổi lên phía trên đầu ô đầu tiên */
@@ -251,25 +237,6 @@
             letter-spacing: 1px;
             white-space: nowrap;
             z-index: 10;
-        }
-
-        body.dark-mode tr.rank-1 {
-            background: #7a5c00 !important; /* Màu vàng hoàng kim đậm hơn một chút cho chế độ tối */
-            box-shadow: 0 0 18px rgba(255, 215, 0, 0.6) !important;
-        }
-
-        body.dark-mode tr.rank-1 td {
-            border-top: 2px solid #ffd700 !important;
-            border-bottom: 2px solid #ffd700 !important;
-            color: #fffde6 !important;
-        }
-
-        body.dark-mode tr.rank-1 td:first-child {
-            border-left: 2px solid #ffd700 !important;
-        }
-
-        body.dark-mode tr.rank-1 td:last-child {
-            border-right: 2px solid #ffd700 !important;
         }
         /* ========================================================== */
 
