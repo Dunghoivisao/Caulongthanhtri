@@ -213,7 +213,6 @@
         /* HIỆU ỨNG GLOW VÀNG SANG TRỌNG CHO HẠNG 1                   */
         /* ========================================================== */
         tr.rank-1 {
-            position: relative;
             background: linear-gradient(135deg, #fffbe6 0%, #fff2cc 50%, #ffe680 100%) !important;
             box-shadow: 0 0 25px rgba(255, 215, 0, 0.75), inset 0 0 15px rgba(255, 255, 255, 0.9) !important;
             transform: scale(1.01);
@@ -229,27 +228,29 @@
 
         tr.rank-1 td:first-child {
             border-left: 2px solid #ffcc00 !important;
+            position: relative; /* Dùng để neo nhãn TOP 1 nằm ngay trên ô đầu tiên */
         }
 
         tr.rank-1 td:last-child {
             border-right: 2px solid #ffcc00 !important;
         }
 
-        /* Nhãn TOP 1 nhỏ gọn ở góc trên cùng bên trái của dòng */
-        tr.rank-1::before {
-            content: "TOP 1";
+        /* Nhãn TOP 1 nổi lên phía trên đầu ô đầu tiên, hoàn toàn không ảnh hưởng nội dung bảng */
+        tr.rank-1 td:first-child::before {
+            content: "👑 TOP 1";
             position: absolute;
-            top: -10px;
-            left: 8px;
+            top: -20px;
+            left: 0;
             background: linear-gradient(135deg, #ffaa00, #ff3300);
             color: #ffffff;
             font-weight: 800;
-            font-size: 9px;
+            font-size: 10px;
             padding: 2px 8px;
             border-radius: 4px;
-            box-shadow: 0 2px 5px rgba(255, 51, 0, 0.4);
+            box-shadow: 0 2px 6px rgba(255, 51, 0, 0.5);
             letter-spacing: 1px;
-            z-index: 5;
+            white-space: nowrap;
+            z-index: 10;
         }
 
         body.dark-mode tr.rank-1 {
@@ -508,7 +509,8 @@
         <h2>Bảng Xếp Hạng Cá Nhân</h2>
         <div class="note">(💡 Bấm trực tiếp vào <strong>Avatar</strong> để đổi ảnh • Bấm trực tiếp vào <strong>Tên</strong> để đổi tên)</div>
         
-        <div style="overflow-x: auto;">
+        <!-- Thêm padding-top vào vùng chứa bảng để hiển thị nhãn TOP 1 không bị cắt -->
+        <div style="overflow-x: auto; padding-top: 15px;">
             <table>
                 <thead>
                     <tr>
